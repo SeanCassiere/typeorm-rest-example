@@ -8,30 +8,32 @@ import swaggerUI from "swagger-ui-express";
 import { errorHandler, notFound } from "./middleware/errorMiddleware";
 import swaggerDocument from "./swagger.json";
 
+import { userRouter } from "./routes/userRoutes";
+
 dotenv.config();
 
 const PORT = process.env.PORT ?? 4000;
 
-const main = async () => {
-	await createConnection();
+createConnection()
+	.then(() => {
+		const app = Express();
+		app.use(cors());
+		app.use(Express.json());
 
-	const app = Express();
-	app.use(cors());
-	app.use(Express.json());
+		app.get("/", (_, res) => {
+			res.send("hello world");
+		});
+		app.use("/docs", swaggerUI.serve);
+		app.get("/docs", swaggerUI.setup(swaggerDocument));
 
-	app.get("/", (_, res) => {
-		res.send("hello world");
-	});
-	app.use("/docs", swaggerUI.serve);
-	app.get("/docs", swaggerUI.setup(swaggerDocument));
+		//** Implement API Routes*/
+		app.use("/api/users", userRouter);
 
-	//** Implement API Routes*/
+		app.use(notFound);
+		app.use(errorHandler);
 
-	app.use(notFound);
-	app.use(errorHandler);
-	app.listen(PORT, () => {
-		console.log(`Server running on Port ${PORT}`);
-	});
-};
-
-main();
+		app.listen(PORT, () => {
+			console.log(`Server running on Port ${PORT}`);
+		});
+	})
+	.catch((err) => console.log(`DB connection error\n${err}`));

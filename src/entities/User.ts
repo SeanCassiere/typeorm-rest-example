@@ -22,4 +22,7 @@ export class User extends BaseEntity {
 
 	@Column("bool", { default: false })
 	isEmailConfirmed: boolean;
+
+	@Column("bool", { default: false })
+	isAdmin: boolean;
 }

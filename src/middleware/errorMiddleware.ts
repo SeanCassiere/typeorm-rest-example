@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
 	const error = new Error(`Not Found - ${req.originalUrl}`);
@@ -6,7 +6,7 @@ const notFound = (req: Request, res: Response, next: NextFunction) => {
 	next(error);
 };
 
-const errorHandler = (err: Error, _: Request, res: Response) => {
+const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
 	const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
 	res.status(statusCode);
 	res.json({
