@@ -5,8 +5,10 @@ import { generateToken } from "../utils/generateToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
 import { redis } from "../redis";
 import { createConfirmationUrl } from "../utils/createConfirmationURL";
+import { createResetPasswordURL } from "../utils/createResetPasswordURL";
 import { sendEmail } from "../utils/sendEmail";
-import { confirmationEmailPrefix } from "../utils/constants/redisPrefixes";
+import { confirmationEmailPrefix, forgotPasswordPrefix } from "../utils/constants/redisPrefixes";
+import { hashPasswordForUser } from "../utils/hashPasswordForUser";
 
 import { User } from "../entities/User";
 
@@ -21,21 +23,21 @@ export const adminGetAllUsers = asyncHandler(async (_, res) => {
 // @desc Get user by ID for Admin
 // @route GET /api/users/:id
 // @access Private/Admin
-export const adminGetUserById = asyncHandler(async (req, res) => {
+export const adminGetUserById = asyncHandler(async (req, res, next) => {
 	const user = await User.findOne({ where: { id: req.params.id } });
 
 	if (user) {
 		res.json(user);
 	} else {
 		res.status(404);
-		throw new Error("User not found");
+		next(new Error("User not found"));
 	}
 });
 
 // @desc Delete user by id for Admin
 // @route DELETE /api/users/:id
 // @access Private/Admin
-export const adminDeleteUserById = asyncHandler(async (req, res) => {
+export const adminDeleteUserById = asyncHandler(async (req, res, next) => {
 	const user = await User.findOne({ where: { id: req.params.id } });
 
 	if (user) {
@@ -44,7 +46,7 @@ export const adminDeleteUserById = asyncHandler(async (req, res) => {
 		res.json({ message: "User removed" });
 	} else {
 		res.status(404);
-		throw new Error("User not found");
+		next(new Error("User not found"));
 	}
 
 	res.json(user);
@@ -53,7 +55,7 @@ export const adminDeleteUserById = asyncHandler(async (req, res) => {
 // @desc Update user by Admin
 // @route PUT /api/users/:id
 // @access Private/Admin
-export const adminUpdateUserById = asyncHandler(async (req, res) => {
+export const adminUpdateUserById = asyncHandler(async (req, res, next) => {
 	const user = await User.findOne({ where: { id: req.params.id } });
 
 	if (user) {
@@ -69,7 +71,7 @@ export const adminUpdateUserById = asyncHandler(async (req, res) => {
 		res.json(updatedUser);
 	} else {
 		res.status(404);
-		throw new Error("User not found");
+		next(new Error("User not found"));
 	}
 });
 
@@ -165,7 +167,7 @@ export const registerUser = asyncHandler(
 			res.status(400);
 			next(new Error("User already exists"));
 		} else {
-			const newPassword = await bcryptjs.hash(password, 12);
+			const newPassword = await hashPasswordForUser(password);
 
 			const user = await User.create({
 				firstName,
@@ -196,7 +198,7 @@ export const registerUser = asyncHandler(
 // @desc Get user profile
 // @route GET /api/users/profile
 // @access Private
-export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res) => {
+export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res, next) => {
 	const user = await User.findOne({ where: { id: req.user!.id } });
 
 	if (user) {
@@ -210,7 +212,7 @@ export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res) =
 		});
 	} else {
 		res.status(404);
-		throw new Error("User not found");
+		next(new Error("User not found"));
 	}
 });
 
@@ -218,7 +220,11 @@ export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res) =
 // @route PUT /api/users/profile
 // @access Private
 export const updateUserProfile = asyncHandler(
-	async (req: CustomRequest<{ firstName?: string; lastName?: string; email?: string; password?: string }>, res) => {
+	async (
+		req: CustomRequest<{ firstName?: string; lastName?: string; email?: string; password?: string }>,
+		res,
+		next
+	) => {
 		const user = await User.findOne({ where: { id: req.user!.id } });
 
 		if (user) {
@@ -243,11 +249,53 @@ export const updateUserProfile = asyncHandler(
 				});
 			} catch (error) {
 				res.status(500);
-				throw new Error("User updating error");
+				next(new Error("User updating error"));
 			}
 		} else {
 			res.status(404);
-			throw new Error("User not found");
+			next(new Error("User not found"));
+		}
+	}
+);
+
+// @desc Request new confirmation email
+// @route POST /api/users/sendForgotPasswordEmail
+// @access Public
+export const sendResetPasswordEmail = asyncHandler(async (req: CustomRequest<{ email: string }>, res) => {
+	const { email } = req.body;
+
+	const user = await User.findOne({ where: { email: email.toLowerCase() } });
+
+	if (!user) res.status(200).json({ message: "Success" });
+
+	if (user) {
+		await sendEmail(user.email, await createResetPasswordURL(user.id));
+		res.status(200).json({ message: "Success" });
+	}
+});
+
+// @desc Request new confirmation email
+// @route POST /api/users/resetPassword
+// @access Public
+export const resetPasswordWithToken = asyncHandler(
+	async (req: CustomRequest<{ token: string; password: string }>, res, next) => {
+		const { token, password } = req.body;
+
+		const userId = await redis.get(forgotPasswordPrefix + token);
+
+		if (!userId) {
+			res.status(401);
+			next(new Error("Token invalid, please request new token"));
+		}
+
+		const user = await User.findOne({ where: { id: userId } });
+
+		if (!user) res.status(200).json({ message: "Success" });
+
+		if (user) {
+			user.password = await hashPasswordForUser(password);
+			await user.save();
+			res.status(200).json({ message: "Success" });
 		}
 	}
 );

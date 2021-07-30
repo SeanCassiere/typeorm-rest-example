@@ -12,6 +12,8 @@ import {
 	getUserProfile,
 	registerUser,
 	resendConfirmation,
+	resetPasswordWithToken,
+	sendResetPasswordEmail,
 	updateUserProfile,
 } from "../controllers/userControllers";
 
@@ -26,6 +28,10 @@ userRouter.route("/profile").get(protect, getUserProfile).put(protect, updateUse
 userRouter.route("/confirmUser").post(confirmUser);
 
 userRouter.route("/resendConfirmationEmail").post(resendConfirmation);
+
+userRouter.route("/sendForgotPasswordEmail").post(sendResetPasswordEmail);
+
+userRouter.route("/resetPassword").post(resetPasswordWithToken);
 
 userRouter
 	.route("/:id")

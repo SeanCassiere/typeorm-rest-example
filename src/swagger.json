@@ -370,6 +370,86 @@
 				}
 			}
 		},
+		"/api/users/sendForgotPasswordEmail": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Send reset password link to email",
+				"operationId": "sendForgotPasswordEmail",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/users/resetPassword": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Reset the user password with the token from the email",
+				"operationId": "resetPasswordWithToken",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"token": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/users/{id}": {
 			"get": {
 				"tags": ["Users", "Admin"],
