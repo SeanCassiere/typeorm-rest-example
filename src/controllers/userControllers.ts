@@ -15,7 +15,6 @@ import { User } from "../entities/User";
 // @access Private/Admin
 export const adminGetAllUsers = asyncHandler(async (_, res) => {
 	const users = await User.find({});
-
 	res.json(users);
 });
 
@@ -61,19 +60,13 @@ export const adminUpdateUserById = asyncHandler(async (req, res) => {
 		user.firstName = req.body.name || user.firstName;
 		user.lastName = req.body.name || user.lastName;
 		user.email = req.body.email || user.email;
-		user.isActive = req.body.email || user.isActive;
-		user.isEmailConfirmed = req.body.email || user.isEmailConfirmed;
+		user.isActive = req.body.isActive || user.isActive;
+		user.isAdmin = req.body.isAdmin || user.isActive;
+		user.isEmailConfirmed = req.body.isEmailConfirmed || user.isEmailConfirmed;
 
 		const updatedUser = await user.save();
 
-		res.json({
-			id: updatedUser.id,
-			firstName: updatedUser.firstName,
-			lastName: updatedUser.lastName,
-			email: updatedUser.email,
-			isActive: updatedUser.isActive,
-			isEmailConfirmed: updatedUser.isEmailConfirmed,
-		});
+		res.json(updatedUser);
 	} else {
 		res.status(404);
 		throw new Error("User not found");
@@ -171,31 +164,31 @@ export const registerUser = asyncHandler(
 		if (userExists) {
 			res.status(400);
 			next(new Error("User already exists"));
-		}
-
-		const newPassword = await bcryptjs.hash(password, 12);
-
-		const user = await User.create({
-			firstName,
-			lastName,
-			email: email.toLowerCase(),
-			password: newPassword,
-		}).save();
-
-		await sendEmail(user.email, await createConfirmationUrl(user.id));
-
-		if (user) {
-			res.status(201).json({
-				id: user.id,
-				firstName: user.firstName,
-				lastName: user.lastName,
-				email: user.email,
-				isAdmin: user.isAdmin,
-				isEmailConfirmed: user.isEmailConfirmed,
-			});
 		} else {
-			res.status(400);
-			next(new Error("Invalid user data"));
+			const newPassword = await bcryptjs.hash(password, 12);
+
+			const user = await User.create({
+				firstName,
+				lastName,
+				email: email.toLowerCase(),
+				password: newPassword,
+			}).save();
+
+			await sendEmail(user.email, await createConfirmationUrl(user.id));
+
+			if (user) {
+				res.status(201).json({
+					id: user.id,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					email: user.email,
+					isAdmin: user.isAdmin,
+					isEmailConfirmed: user.isEmailConfirmed,
+				});
+			} else {
+				res.status(400);
+				next(new Error("Invalid user data"));
+			}
 		}
 	}
 );

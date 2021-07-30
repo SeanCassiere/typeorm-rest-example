@@ -15,9 +15,9 @@ import {
 	updateUserProfile,
 } from "../controllers/userControllers";
 
-export const userRouter = Router();
+const userRouter = Router();
 
-userRouter.route("/").post(registerUser).get(protect, isAdmin, adminGetAllUsers);
+userRouter.route("/").get(protect, isAdmin, adminGetAllUsers).post(registerUser);
 
 userRouter.route("/login").post(authUser);
 
@@ -32,3 +32,5 @@ userRouter
 	.delete(protect, isAdmin, adminDeleteUserById)
 	.get(protect, isAdmin, adminGetUserById)
 	.put(protect, isAdmin, adminUpdateUserById);
+
+export { userRouter };

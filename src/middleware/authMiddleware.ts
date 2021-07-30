@@ -7,7 +7,7 @@ import { User } from "../entities/User";
 import { GeneratedTokenInterface } from "../interfaces/generatedToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
 
-const JWT_SECRET: Secret = process.env.JWT_SECRET || "";
+const JWT_SECRET: Secret = process.env.JWT_SECRET || "dev_jwt_secret";
 
 export const protect = asyncHandler(async (req: CustomRequest<{}>, res, next: NextFunction) => {
 	let token: string = "";
@@ -46,5 +46,4 @@ export const isAdmin = asyncHandler(async (req: CustomRequest<{}>, res, next: Ne
 		res.status(401);
 		throw Error("Not authorized, must be an admin");
 	}
-	next();
 });

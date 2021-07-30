@@ -30,17 +30,25 @@
 				"description": "Find out more",
 				"url": "http://swagger.io"
 			}
+		},
+		{
+			"name": "Admin",
+			"description": "All methods that are only accessible to isAdmin users",
+			"externalDocs": {
+				"description": "Find out more",
+				"url": "http://swagger.io"
+			}
 		}
 	],
 	"paths": {
 		"/api/users": {
 			"post": {
 				"tags": ["Users"],
-				"summary": "Create user",
-				"description": "This can only be done by the logged in user.",
-				"operationId": "createUser",
+				"summary": "Register a user",
+				"description": "Register a user on the platform.",
+				"operationId": "registerUser",
 				"requestBody": {
-					"description": "Created user object",
+					"description": "User object required for registering",
 					"content": {
 						"application/json": {
 							"schema": {
@@ -48,12 +56,10 @@
 								"required": true,
 								"properties": {
 									"firstName": {
-										"type": "string",
-										"format": "string"
+										"type": "string"
 									},
 									"lastName": {
-										"type": "string",
-										"format": "string"
+										"type": "string"
 									},
 									"email": {
 										"type": "string",
@@ -106,22 +112,52 @@
 					}
 				},
 				"x-codegen-request-body-name": "body"
+			},
+			"get": {
+				"tags": ["Users", "Admin"],
+				"summary": "Admin Get all users",
+				"description": "This can only be done by an isAdmin user.",
+				"operationId": "getAllUsers",
+				"security": [{ "bearerAuth": [] }],
+				"responses": {
+					"200": {
+						"description": "All users in the system",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/UserFromDB"
+									}
+								}
+							}
+						}
+					}
+				},
+				"x-codegen-request-body-name": "body"
 			}
 		},
-		"/api/users/profile": {
-			"get": {
-				"security": {
-					"bearerAuth": []
-				},
+		"/api/users/login": {
+			"post": {
 				"tags": ["Users"],
-				"summary": "Creates list of users with given input array",
-				"operationId": "createUsersWithArrayInput",
+				"summary": "Logs user into the system",
+				"operationId": "loginUser",
 				"requestBody": {
-					"description": "List of user object",
+					"description": "Login a user",
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/User"
+								"type": "object",
+								"required": true,
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email"
+									},
+									"password": {
+										"type": "string"
+									}
+								}
 							}
 						}
 					},
@@ -133,29 +169,79 @@
 						"content": {
 							"application/json": {
 								"schema": {
+									"$ref": "#/components/schemas/UserForApplicationWithToken"
+								}
+							}
+						}
+					},
+					"401": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/users/profile": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "Fetch the profile of the currently logged-in user",
+				"operationId": "fetchCurrentUserProfile",
+				"security": [{ "bearerAuth": [] }],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
 									"type": "object",
-									"$ref": "#/components/schemas/User"
+									"$ref": "#/components/schemas/UserForApplication"
+								}
+							}
+						}
+					},
+					"404": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/StandardError"
 								}
 							}
 						}
 					}
 				},
 				"x-codegen-request-body-name": "body"
-			}
-		},
-		"/api/users/createWithList": {
-			"post": {
+			},
+			"put": {
 				"tags": ["Users"],
-				"summary": "Creates list of users with given input array",
-				"operationId": "createUsersWithListInput",
+				"summary": "Update the profile of the currently logged-in user",
+				"operationId": "updateCurrentUserProfile",
+				"security": [{ "bearerAuth": [] }],
 				"requestBody": {
-					"description": "List of user object",
+					"description": "User profile data to be updated",
 					"content": {
-						"*/*": {
+						"application/json": {
 							"schema": {
-								"type": "array",
-								"items": {
-									"$ref": "#/components/schemas/User"
+								"type": "object",
+								"required": true,
+								"properties": {
+									"firstName": {
+										"type": "string"
+									},
+									"lastName": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string",
+										"format": "email"
+									},
+									"password": {
+										"type": "string"
+									}
 								}
 							}
 						}
@@ -164,12 +250,30 @@
 				},
 				"responses": {
 					"200": {
-						"description": "successful operation",
 						"content": {
-							"schema": {
-								"type": "object",
-								"items": {
-									"$ref": "#/components/schemas/User"
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserForApplicationWithToken"
+								}
+							}
+						}
+					},
+					"500": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					},
+					"404": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/StandardError"
 								}
 							}
 						}
@@ -206,7 +310,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/User"
+									"$ref": "#/components/schemas/UserForApplication"
 								}
 							}
 						}
@@ -216,12 +320,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
-									"properties": {
-										"message": {
-											"type": "string"
-										}
-									}
+									"$ref": "#/components/schemas/StandardError"
 								}
 							}
 						}
@@ -271,25 +370,89 @@
 				}
 			}
 		},
-		"/api/users/login": {
-			"post": {
-				"tags": ["Users"],
-				"summary": "Logs user into the system",
-				"operationId": "loginUser",
+		"/api/users/{id}": {
+			"get": {
+				"tags": ["Users", "Admin"],
+				"summary": "Admin Get user by ID",
+				"operationId": "getUserById",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "Id of the user to be fetched. Use 1 for testing.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserFromDB"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": ["Users", "Admin"],
+				"summary": "Admin Update user by Id",
+				"description": "This can only be done by the logged in user.",
+				"operationId": "updateUserById",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "Id of the user to be fetched. Use 1 for testing.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
 				"requestBody": {
-					"description": "Login a user",
+					"description": "Updated user object",
 					"content": {
 						"application/json": {
 							"schema": {
-								"type": "object",
-								"required": true,
 								"properties": {
+									"firstName": {
+										"type": "string"
+									},
+									"lastName": {
+										"type": "string"
+									},
 									"email": {
 										"type": "string",
 										"format": "email"
 									},
-									"password": {
-										"type": "string"
+									"isEmailConfirmed": {
+										"type": "boolean"
+									},
+									"isAdmin": {
+										"type": "boolean",
+										"default": false
+									},
+									"isActive": {
+										"type": "boolean",
+										"default": true
 									}
 								}
 							}
@@ -299,43 +462,54 @@
 				},
 				"responses": {
 					"200": {
-						"description": "successful operation",
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
-									"properties": {
-										"id": {
-											"type": "integer"
-										},
-										"firstName": {
-											"type": "string"
-										},
-										"lastName": {
-											"type": "string"
-										},
-										"email": {
-											"type": "string",
-											"format": "email"
-										},
-										"isEmailConfirmed": {
-											"type": "boolean",
-											"default": false
-										},
-										"isAdmin": {
-											"type": "boolean",
-											"default": false
-										},
-										"token": {
-											"type": "string"
-										}
-									}
+									"$ref": "#/components/schemas/UserFromDB"
 								}
 							}
 						}
 					},
-					"401": {
-						"description": "Invalid username/password supplied",
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					},
+					"404": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					}
+				},
+				"x-codegen-request-body-name": "body"
+			},
+			"delete": {
+				"tags": ["Users", "Admin"],
+				"summary": "Admin Delete a user by Id",
+				"operationId": "deleteUserById",
+				"security": [{ "bearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "Id of the user to be deleted",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "User deleted",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -348,128 +522,16 @@
 								}
 							}
 						}
-					}
-				}
-			}
-		},
-		"/api/users/logout": {
-			"get": {
-				"tags": ["Users"],
-				"summary": "Logs out current logged in user session",
-				"operationId": "logoutUser",
-				"responses": {
-					"default": {
-						"description": "successful operation",
-						"content": {}
-					}
-				}
-			}
-		},
-		"/api/users/{username}": {
-			"get": {
-				"tags": ["Users"],
-				"summary": "Get user by user name",
-				"operationId": "getUserByName",
-				"parameters": [
-					{
-						"name": "username",
-						"in": "path",
-						"description": "The name that needs to be fetched. Use user1 for testing. ",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "successful operation",
+					},
+					"404": {
+						"description": "User not found",
 						"content": {
-							"application/xml": {
-								"schema": {
-									"$ref": "#/components/schemas/User"
-								}
-							},
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/User"
+									"$ref": "#/components/schemas/StandardError"
 								}
 							}
 						}
-					},
-					"400": {
-						"description": "Invalid username supplied",
-						"content": {}
-					},
-					"404": {
-						"description": "User not found",
-						"content": {}
-					}
-				}
-			},
-			"put": {
-				"tags": ["Users"],
-				"summary": "Updated user",
-				"description": "This can only be done by the logged in user.",
-				"operationId": "updateUser",
-				"parameters": [
-					{
-						"name": "username",
-						"in": "path",
-						"description": "name that need to be updated",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"description": "Updated user object",
-					"content": {
-						"*/*": {
-							"schema": {
-								"$ref": "#/components/schemas/User"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"400": {
-						"description": "Invalid user supplied",
-						"content": {}
-					},
-					"404": {
-						"description": "User not found",
-						"content": {}
-					}
-				},
-				"x-codegen-request-body-name": "body"
-			},
-			"delete": {
-				"tags": ["Users"],
-				"summary": "Delete user",
-				"description": "This can only be done by the logged in user.",
-				"operationId": "deleteUser",
-				"parameters": [
-					{
-						"name": "username",
-						"in": "path",
-						"description": "The name that needs to be deleted",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"400": {
-						"description": "Invalid username supplied",
-						"content": {}
-					},
-					"404": {
-						"description": "User not found",
-						"content": {}
 					}
 				}
 			}
@@ -477,7 +539,49 @@
 	},
 	"components": {
 		"schemas": {
-			"User": {
+			"StandardError": {
+				"type": "object",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"stack": {
+						"type": "string",
+						"nullable": true
+					}
+				}
+			},
+			"UserFromDB": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string",
+						"format": "email"
+					},
+					"password": {
+						"type": "string"
+					},
+					"isEmailConfirmed": {
+						"type": "boolean"
+					},
+					"isAdmin": {
+						"type": "boolean"
+					},
+					"isActive": {
+						"type": "boolean"
+					}
+				}
+			},
+			"UserForApplication": {
 				"type": "object",
 				"properties": {
 					"id": {
@@ -494,16 +598,38 @@
 						"format": "email"
 					},
 					"isEmailConfirmed": {
-						"type": "boolean",
-						"default": false
+						"type": "boolean"
 					},
 					"isAdmin": {
-						"type": "boolean",
-						"default": false
+						"type": "boolean"
 					}
-				},
-				"xml": {
-					"name": "User"
+				}
+			},
+			"UserForApplicationWithToken": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string",
+						"format": "email"
+					},
+					"isEmailConfirmed": {
+						"type": "boolean"
+					},
+					"isAdmin": {
+						"type": "boolean"
+					},
+					"token": {
+						"type": "string"
+					}
 				}
 			}
 		},
