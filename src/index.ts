@@ -2,11 +2,11 @@ import "reflect-metadata";
 import dotenv from "dotenv";
 import Express from "express";
 import cors from "cors";
-import { createConnection } from "typeorm";
 import swaggerUI from "swagger-ui-express";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware";
 import swaggerDocument from "./swagger.json";
+import { createTypeormConn } from "./utils/createTypeOrmConn";
 
 import { userRouter } from "./routes/userRoutes";
 
@@ -16,11 +16,7 @@ const PORT = process.env.PORT ?? 4000;
 
 const main = async () => {
 	try {
-		if (process.env.NODE_ENV === "production") {
-			await createConnection();
-		} else {
-			await createConnection("development");
-		}
+		await createTypeormConn();
 
 		const app = Express();
 
