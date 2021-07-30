@@ -16,7 +16,11 @@ const PORT = process.env.PORT ?? 4000;
 
 const main = async () => {
 	try {
-		await createConnection();
+		if (process.env.NODE_ENV === "production") {
+			await createConnection();
+		} else {
+			await createConnection("development");
+		}
 
 		const app = Express();
 

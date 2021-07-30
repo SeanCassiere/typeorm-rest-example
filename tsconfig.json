@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"target": "es6",
 		"module": "commonjs",
-		"lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
+		"lib": ["dom", "es2017", "ES6", "esnext.asynciterable"],
 		"sourceMap": true,
 		"outDir": "./dist",
 		"moduleResolution": "node",
@@ -23,8 +23,8 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"skipLibCheck": true,
-		"baseUrl": ".",
-		"rootDir": "src"
+		"baseUrl": "."
+		// "rootDir": "src"
 	},
 	"exclude": ["node_modules"],
 	"include": ["./src/**/*.tsx", "./src/**/*.ts"]

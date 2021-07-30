@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "node dist/index.js",
+		"start": "NODE_ENV=production node dist/index.js",
 		"build:killDist": "rimraf ./dist",
 		"build:code": "tsc",
 		"build": "npm run build:killDist && npm run build:code",
@@ -14,7 +14,6 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@types/nodemailer": "^6.4.4",
 		"bcryptjs": "^2.4.3",
 		"connect-redis": "^6.0.0",
 		"cors": "^2.8.5",
@@ -33,6 +32,7 @@
 		"uuid": "^8.3.2"
 	},
 	"devDependencies": {
+		"@types/nodemailer": "^6.4.4",
 		"@types/bcryptjs": "^2.4.2",
 		"@types/connect-redis": "^0.0.17",
 		"@types/cors": "^2.8.12",
