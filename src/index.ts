@@ -14,8 +14,10 @@ dotenv.config();
 
 const PORT = process.env.PORT ?? 4000;
 
-createConnection()
-	.then(() => {
+const main = async () => {
+	try {
+		await createConnection();
+
 		const app = Express();
 
 		app.use(cors());
@@ -36,5 +38,9 @@ createConnection()
 		app.listen(PORT, () => {
 			console.log(`Server running on Port ${PORT}`);
 		});
-	})
-	.catch((err) => console.log(`DB connection error\n${err}`));
+	} catch (error) {
+		console.log(`DB connection error\n${error}`);
+	}
+};
+
+main();
