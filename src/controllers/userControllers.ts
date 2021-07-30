@@ -3,6 +3,10 @@ import bcryptjs from "bcryptjs";
 
 import { generateToken } from "../utils/generateToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
+import { redis } from "../redis";
+import { createConfirmationUrl } from "../utils/createConfirmationURL";
+import { sendEmail } from "../utils/sendEmail";
+import { confirmationEmailPrefix } from "../utils/constants/redisPrefixes";
 
 import { User } from "../entities/User";
 
@@ -84,6 +88,11 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 
 	const user = await User.findOne({ where: { email } });
 
+	if (user && !user.isEmailConfirmed) {
+		res.status(401);
+		next(new Error("Email not confirmed"));
+	}
+
 	if (user && (await bcryptjs.compare(password, user.password))) {
 		res.json({
 			id: user.id,
@@ -97,6 +106,56 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 	} else {
 		res.status(401);
 		next(new Error("Invalid email or password"));
+	}
+});
+
+// @desc Confirm user with token from email
+// @route POST /api/users/confirmUser
+// @access Public
+export const confirmUser = asyncHandler(async (req: CustomRequest<{ token: string }>, res, next) => {
+	const { token } = req.body;
+
+	const userId = await redis.get(confirmationEmailPrefix + token);
+
+	if (!userId) {
+		res.status(401);
+		next(new Error("Token missing, please request new token"));
+	}
+
+	const user = await User.findOne({ where: { id: userId } });
+
+	if (user) {
+		user.isEmailConfirmed = true;
+		await user.save();
+
+		res.json({
+			id: user.id,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			email: user.email,
+			isAdmin: user.isAdmin,
+			isEmailConfirmed: user.isEmailConfirmed,
+		});
+	} else {
+		res.status(401);
+		next(new Error("Could not find user in database"));
+	}
+});
+
+// @desc Request new confirmation email
+// @route POST /api/users/resendConfirmationEmail
+// @access Public
+export const resendConfirmation = asyncHandler(async (req: CustomRequest<{ email: string }>, res) => {
+	const { email } = req.body;
+
+	const user = await User.findOne({ where: { email: email.toLowerCase() } });
+
+	if (!user) res.status(200).json({ message: "Success" });
+	if (user && user.isEmailConfirmed) res.status(200).json({ message: "Success" });
+
+	if (user) {
+		await sendEmail(user.email, await createConfirmationUrl(user.id));
+		res.status(200).json({ message: "Success" });
 	}
 });
 
@@ -119,9 +178,11 @@ export const registerUser = asyncHandler(
 		const user = await User.create({
 			firstName,
 			lastName,
-			email,
+			email: email.toLowerCase(),
 			password: newPassword,
 		}).save();
+
+		await sendEmail(user.email, await createConfirmationUrl(user.id));
 
 		if (user) {
 			res.status(201).json({

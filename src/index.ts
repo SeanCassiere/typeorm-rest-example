@@ -17,6 +17,7 @@ const PORT = process.env.PORT ?? 4000;
 createConnection()
 	.then(() => {
 		const app = Express();
+
 		app.use(cors());
 		app.use(Express.json());
 

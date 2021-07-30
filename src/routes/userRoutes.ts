@@ -8,8 +8,10 @@ import {
 	adminGetUserById,
 	adminUpdateUserById,
 	authUser,
+	confirmUser,
 	getUserProfile,
 	registerUser,
+	resendConfirmation,
 	updateUserProfile,
 } from "../controllers/userControllers";
 
@@ -20,6 +22,10 @@ userRouter.route("/").post(registerUser).get(protect, isAdmin, adminGetAllUsers)
 userRouter.route("/login").post(authUser);
 
 userRouter.route("/profile").get(protect, getUserProfile).put(protect, updateUserProfile);
+
+userRouter.route("/confirmUser").post(confirmUser);
+
+userRouter.route("/resendConfirmationEmail").post(resendConfirmation);
 
 userRouter
 	.route("/:id")

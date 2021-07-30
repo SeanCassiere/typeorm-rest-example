@@ -19,7 +19,7 @@
 	},
 	"servers": [
 		{
-			"url": "https://localhost:4000/api"
+			"url": "http://localhost:4000"
 		}
 	],
 	"tags": [
@@ -33,7 +33,7 @@
 		}
 	],
 	"paths": {
-		"/users": {
+		"/api/users": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Create user",
@@ -108,7 +108,7 @@
 				"x-codegen-request-body-name": "body"
 			}
 		},
-		"/users/profile": {
+		"/api/users/profile": {
 			"get": {
 				"security": {
 					"bearerAuth": []
@@ -143,7 +143,7 @@
 				"x-codegen-request-body-name": "body"
 			}
 		},
-		"/users/createWithList": {
+		"/api/users/createWithList": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Creates list of users with given input array",
@@ -178,7 +178,100 @@
 				"x-codegen-request-body-name": "body"
 			}
 		},
-		"/users/login": {
+		"/api/users/confirmUser": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Confirms the user email into the system",
+				"operationId": "confirmUser",
+				"requestBody": {
+					"description": "Confirm user email",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"token": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid token or user not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/users/resendConfirmationEmail": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Request new account confirmation email",
+				"operationId": "resendConfirmationEmail",
+				"requestBody": {
+					"description": "Pass email to check and send email from db. Will always return true for security purposes",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/users/login": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Logs user into the system",
@@ -210,7 +303,33 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/User"
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"firstName": {
+											"type": "string"
+										},
+										"lastName": {
+											"type": "string"
+										},
+										"email": {
+											"type": "string",
+											"format": "email"
+										},
+										"isEmailConfirmed": {
+											"type": "boolean",
+											"default": false
+										},
+										"isAdmin": {
+											"type": "boolean",
+											"default": false
+										},
+										"token": {
+											"type": "string"
+										}
+									}
 								}
 							}
 						}
@@ -233,7 +352,7 @@
 				}
 			}
 		},
-		"/users/logout": {
+		"/api/users/logout": {
 			"get": {
 				"tags": ["Users"],
 				"summary": "Logs out current logged in user session",
@@ -246,7 +365,7 @@
 				}
 			}
 		},
-		"/users/{username}": {
+		"/api/users/{username}": {
 			"get": {
 				"tags": ["Users"],
 				"summary": "Get user by user name",
@@ -373,10 +492,6 @@
 					"email": {
 						"type": "string",
 						"format": "email"
-					},
-					"isActive": {
-						"type": "boolean",
-						"default": true
 					},
 					"isEmailConfirmed": {
 						"type": "boolean",
