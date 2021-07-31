@@ -2,7 +2,15 @@ import { Router } from "express";
 import { expressYupMiddleware } from "express-yup-middleware";
 
 import { isAdmin, protect } from "../middleware/authMiddleware";
-
+import {
+	confirmUserValidator,
+	registerUserValidator,
+	selfUpdateUserValidator,
+	userLoginValidator,
+	bodyEmailOnlyValidator,
+	resetPasswordWithTokenValidator,
+	adminUpdateUserValidator,
+} from "../validators/userRouteValidators";
 import {
 	adminDeleteUserById,
 	adminGetAllUsers,
@@ -17,14 +25,6 @@ import {
 	sendResetPasswordEmail,
 	updateUserProfile,
 } from "../controllers/userControllers";
-import {
-	confirmUserValidator,
-	registerUserValidator,
-	selfUpdateUserValidator,
-	userLoginValidator,
-	bodyEmailOnlyValidator,
-	resetPasswordWithTokenValidator,
-} from "../validators/userRouteValidators";
 
 const userRouter = Router();
 
@@ -72,6 +72,11 @@ userRouter
 	.route("/:id")
 	.delete(protect, isAdmin, adminDeleteUserById)
 	.get(protect, isAdmin, adminGetUserById)
-	.put(protect, isAdmin, adminUpdateUserById);
+	.put(
+		protect,
+		isAdmin,
+		expressYupMiddleware({ schemaValidator: adminUpdateUserValidator, expectedStatusCode: 400 }),
+		adminUpdateUserById
+	);
 
 export { userRouter };

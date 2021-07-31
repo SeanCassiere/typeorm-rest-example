@@ -26,6 +26,15 @@ export const selfUserUpdateBodySchema = Yup.object().shape({
 	password: Yup.string().min(3),
 });
 
+export const adminUserUpdateBodySchema = Yup.object().shape({
+	firstName: Yup.string().min(3),
+	lastName: Yup.string().min(3),
+	email: Yup.string().email(),
+	isEmailConfirmed: Yup.boolean(),
+	isAdmin: Yup.boolean(),
+	isActive: Yup.boolean(),
+});
+
 export const resendConfirmationSchema = Yup.object().shape({ email });
 
 export const resetPasswordWithTokenSchema = Yup.object().shape({

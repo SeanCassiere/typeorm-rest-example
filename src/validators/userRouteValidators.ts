@@ -8,6 +8,7 @@ import {
 	selfUserUpdateBodySchema,
 	resendConfirmationSchema,
 	resetPasswordWithTokenSchema,
+	adminUserUpdateBodySchema,
 } from "./users/userValidationSchema";
 
 export const userLoginValidator: ExpressYupMiddlewareInterface = {
@@ -59,6 +60,15 @@ export const resetPasswordWithTokenValidator: ExpressYupMiddlewareInterface = {
 	schema: {
 		body: {
 			yupSchema: resetPasswordWithTokenSchema,
+			...commonValidationOptions,
+		},
+	},
+};
+
+export const adminUpdateUserValidator: ExpressYupMiddlewareInterface = {
+	schema: {
+		body: {
+			yupSchema: adminUserUpdateBodySchema,
 			...commonValidationOptions,
 		},
 	},
