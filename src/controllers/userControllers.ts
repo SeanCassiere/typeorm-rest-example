@@ -132,7 +132,7 @@ export const confirmUser = asyncHandler(async (req: CustomRequest<{ token: strin
 			isEmailConfirmed: user.isEmailConfirmed,
 		});
 	} else {
-		res.status(401);
+		res.status(500);
 		next(new Error("Could not find user in database"));
 	}
 });
