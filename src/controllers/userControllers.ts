@@ -15,8 +15,13 @@ import { User } from "../entities/User";
 // @desc Get all users for Admin
 // @route GET /api/users
 // @access Private/Admin
-export const adminGetAllUsers = asyncHandler(async (_, res) => {
-	const users = await User.find({});
+export const adminGetAllUsers = asyncHandler(async (req, res) => {
+	let queryOptions = {};
+	if (req.query && req.query.limit) queryOptions = { ...queryOptions, take: req.query.limit };
+	if (req.query && req.query.offset) queryOptions = { ...queryOptions, skip: req.query.offset };
+	console.log("Query Options", queryOptions);
+
+	const users = await User.find({ ...queryOptions });
 	res.json(users);
 });
 

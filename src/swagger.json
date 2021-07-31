@@ -127,6 +127,24 @@
 				"summary": "Admin Get all users",
 				"description": "This can only be done by an isAdmin user.",
 				"operationId": "getAllUsers",
+				"parameters": [
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "Limit number of items in the query",
+						"schema": {
+							"type": "integer"
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset number of items in the query",
+						"schema": {
+							"type": "integer"
+						}
+					}
+				],
 				"security": [{ "bearerAuth": [] }],
 				"responses": {
 					"200": {
