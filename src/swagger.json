@@ -159,6 +159,15 @@
 								}
 							}
 						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
 					}
 				},
 				"x-codegen-request-body-name": "body"
@@ -707,6 +716,22 @@
 						"type": "object",
 						"properties": {
 							"body": {
+								"type": "array",
+								"nullable": true,
+								"format": "possibleVoid",
+								"items": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"propertyPath": {
+											"type": "string"
+										}
+									}
+								}
+							},
+							"query": {
 								"type": "array",
 								"nullable": true,
 								"format": "possibleVoid",

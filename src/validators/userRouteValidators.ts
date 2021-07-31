@@ -1,6 +1,7 @@
 import { ExpressYupMiddlewareInterface } from "express-yup-middleware";
-import { commonValidationOptions } from "./commonValidationOptions";
+import * as Yup from "yup";
 
+import { commonPaginationOptions, commonValidationOptions } from "./commonValidationOptions";
 import {
 	confirmUserBodySchema,
 	userLoginBodySchema,
@@ -69,6 +70,17 @@ export const adminUpdateUserValidator: ExpressYupMiddlewareInterface = {
 	schema: {
 		body: {
 			yupSchema: adminUserUpdateBodySchema,
+			...commonValidationOptions,
+		},
+	},
+};
+
+export const adminGetAllUsersValidator: ExpressYupMiddlewareInterface = {
+	schema: {
+		query: {
+			yupSchema: Yup.object().shape({
+				...commonPaginationOptions,
+			}),
 			...commonValidationOptions,
 		},
 	},
