@@ -109,6 +109,15 @@
 								}
 							}
 						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
 					}
 				},
 				"x-codegen-request-body-name": "body"
@@ -170,6 +179,15 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/UserForApplicationWithToken"
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
 								}
 							}
 						}
@@ -258,7 +276,16 @@
 							}
 						}
 					},
-					"500": {
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
+					},
+					"404": {
 						"content": {
 							"application/json": {
 								"schema": {
@@ -268,7 +295,7 @@
 							}
 						}
 					},
-					"404": {
+					"500": {
 						"content": {
 							"application/json": {
 								"schema": {
@@ -311,6 +338,15 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/UserForApplication"
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
 								}
 							}
 						}
@@ -366,6 +402,15 @@
 								}
 							}
 						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
 					}
 				}
 			}
@@ -402,6 +447,15 @@
 											"type": "string"
 										}
 									}
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
 								}
 							}
 						}
@@ -443,6 +497,15 @@
 											"type": "string"
 										}
 									}
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
 								}
 							}
 						}
@@ -619,6 +682,32 @@
 	},
 	"components": {
 		"schemas": {
+			"FieldValidationError": {
+				"type": "object",
+				"properties": {
+					"errors": {
+						"type": "object",
+						"properties": {
+							"body": {
+								"type": "array",
+								"nullable": true,
+								"format": "possibleVoid",
+								"items": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"propertyPath": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
 			"StandardError": {
 				"type": "object",
 				"properties": {
