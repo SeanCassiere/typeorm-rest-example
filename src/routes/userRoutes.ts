@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { expressYupMiddleware } from "express-yup-middleware";
 
-import { isAdmin, protect } from "../middleware/authMiddleware";
+import { isAdmin, protect, isRefreshCookieValid } from "../middleware/authMiddleware";
 import {
 	confirmUserValidator,
 	registerUserValidator,
@@ -25,6 +25,8 @@ import {
 	resetPasswordWithToken,
 	sendResetPasswordEmail,
 	updateUserProfile,
+	refreshUserAccessTokenFromCookie,
+	logoutUser,
 } from "../controllers/userControllers";
 
 const userRouter = Router();
@@ -35,6 +37,10 @@ userRouter
 	.post(expressYupMiddleware({ schemaValidator: registerUserValidator }), registerUser);
 
 userRouter.route("/login").post(expressYupMiddleware({ schemaValidator: userLoginValidator }), authUser);
+
+userRouter.route("/logout").get(logoutUser);
+
+userRouter.route("/refreshToken").get(isRefreshCookieValid, refreshUserAccessTokenFromCookie);
 
 userRouter
 	.route("/profile")

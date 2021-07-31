@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import Express from "express";
 import cors from "cors";
 import swaggerUI from "swagger-ui-express";
+import cookieParser from "cookie-parser";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware";
 import swaggerDocument from "./swagger.json";
@@ -12,7 +13,8 @@ import { userRouter } from "./routes/userRoutes";
 
 dotenv.config();
 
-const PORT = process.env.PORT ?? 4000;
+const PORT = process.env.PORT ? process.env.PORT : 4000;
+const COOKIE_SECRET = process.env.COOKIE_SECRET ? process.env.COOKIE_SECRET : "cookie_secret";
 
 const main = async () => {
 	try {
@@ -21,6 +23,7 @@ const main = async () => {
 		const app = Express();
 
 		app.use(cors());
+		app.use(cookieParser(COOKIE_SECRET));
 		app.use(Express.json());
 
 		app.get("/", (_, res) => {

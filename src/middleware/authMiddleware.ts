@@ -1,5 +1,5 @@
 // import { verify, Secret } from "jsonwebtoken";
-import { NextFunction } from "express";
+import { NextFunction, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Secret, verify } from "jsonwebtoken";
 
@@ -19,7 +19,7 @@ export const protect = asyncHandler(async (req: CustomRequest<{}>, res, next: Ne
 
 			const userFound = await User.findOne({ where: { id: decoded.id } });
 
-			if (userFound) {
+			if (userFound && userFound.isActive) {
 				req.user = userFound;
 			} else {
 				throw new Error("No User found");
@@ -39,11 +39,36 @@ export const protect = asyncHandler(async (req: CustomRequest<{}>, res, next: Ne
 	}
 });
 
-export const isAdmin = asyncHandler(async (req: CustomRequest<{}>, res, next: NextFunction) => {
+export const isAdmin = asyncHandler(async (req: CustomRequest<{}>, res: Response, next: NextFunction) => {
 	if (req.user && req.user.isAdmin) {
 		next();
 	} else {
 		res.status(401);
-		throw Error("Not authorized, must be an admin");
+		throw new Error("Not authorized, must be an admin");
+	}
+});
+
+export const isRefreshCookieValid = asyncHandler(async (req: CustomRequest<{}>, res: Response, next: NextFunction) => {
+	if (req.signedCookies && req.signedCookies.refreshToken) {
+		const token = req.signedCookies.refreshToken;
+		try {
+			const decoded = verify(token, JWT_SECRET) as GeneratedTokenInterface;
+
+			const userFound = await User.findOne({ where: { id: decoded.id } });
+
+			if (userFound && userFound.isActive) {
+				req.user = userFound;
+			} else {
+				throw new Error("No User found");
+			}
+		} catch (error) {
+			console.error(error);
+			res.status(401);
+			throw new Error("Refreshing not Authorized, token failed");
+		}
+		next();
+	} else {
+		res.status(401);
+		throw new Error("No refreshToken cookie set, request denied");
 	}
 });
