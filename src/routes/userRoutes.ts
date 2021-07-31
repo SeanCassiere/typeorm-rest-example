@@ -10,6 +10,7 @@ import {
 	bodyEmailOnlyValidator,
 	resetPasswordWithTokenValidator,
 	adminUpdateUserValidator,
+	adminGetAllUsersValidator,
 } from "../validators/userRouteValidators";
 import {
 	adminDeleteUserById,
@@ -30,53 +31,34 @@ const userRouter = Router();
 
 userRouter
 	.route("/")
-	.get(protect, isAdmin, adminGetAllUsers)
-	.post(expressYupMiddleware({ schemaValidator: registerUserValidator, expectedStatusCode: 400 }), registerUser);
+	.get(protect, isAdmin, expressYupMiddleware({ schemaValidator: adminGetAllUsersValidator }), adminGetAllUsers)
+	.post(expressYupMiddleware({ schemaValidator: registerUserValidator }), registerUser);
 
-userRouter
-	.route("/login")
-	.post(expressYupMiddleware({ schemaValidator: userLoginValidator, expectedStatusCode: 400 }), authUser);
+userRouter.route("/login").post(expressYupMiddleware({ schemaValidator: userLoginValidator }), authUser);
 
 userRouter
 	.route("/profile")
 	.get(protect, getUserProfile)
-	.put(
-		protect,
-		expressYupMiddleware({ schemaValidator: selfUpdateUserValidator, expectedStatusCode: 400 }),
-		updateUserProfile
-	);
+	.put(protect, expressYupMiddleware({ schemaValidator: selfUpdateUserValidator }), updateUserProfile);
 
-userRouter
-	.route("/confirmUser")
-	.post(expressYupMiddleware({ schemaValidator: confirmUserValidator, expectedStatusCode: 400 }), confirmUser);
+userRouter.route("/confirmUser").post(expressYupMiddleware({ schemaValidator: confirmUserValidator }), confirmUser);
 
 userRouter
 	.route("/resendConfirmationEmail")
-	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator, expectedStatusCode: 400 }), resendConfirmation);
+	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), resendConfirmation);
 
 userRouter
 	.route("/sendForgotPasswordEmail")
-	.post(
-		expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator, expectedStatusCode: 400 }),
-		sendResetPasswordEmail
-	);
+	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), sendResetPasswordEmail);
 
 userRouter
 	.route("/resetPassword")
-	.post(
-		expressYupMiddleware({ schemaValidator: resetPasswordWithTokenValidator, expectedStatusCode: 400 }),
-		resetPasswordWithToken
-	);
+	.post(expressYupMiddleware({ schemaValidator: resetPasswordWithTokenValidator }), resetPasswordWithToken);
 
 userRouter
 	.route("/:id")
 	.delete(protect, isAdmin, adminDeleteUserById)
 	.get(protect, isAdmin, adminGetUserById)
-	.put(
-		protect,
-		isAdmin,
-		expressYupMiddleware({ schemaValidator: adminUpdateUserValidator, expectedStatusCode: 400 }),
-		adminUpdateUserById
-	);
+	.put(protect, isAdmin, expressYupMiddleware({ schemaValidator: adminUpdateUserValidator }), adminUpdateUserById);
 
 export { userRouter };

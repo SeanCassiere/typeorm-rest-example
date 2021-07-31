@@ -127,6 +127,24 @@
 				"summary": "Admin Get all users",
 				"description": "This can only be done by an isAdmin user.",
 				"operationId": "getAllUsers",
+				"parameters": [
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "Limit number of items in the query",
+						"schema": {
+							"type": "integer"
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset number of items in the query",
+						"schema": {
+							"type": "integer"
+						}
+					}
+				],
 				"security": [{ "bearerAuth": [] }],
 				"responses": {
 					"200": {
@@ -138,6 +156,15 @@
 									"items": {
 										"$ref": "#/components/schemas/UserFromDB"
 									}
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
 								}
 							}
 						}
@@ -689,6 +716,22 @@
 						"type": "object",
 						"properties": {
 							"body": {
+								"type": "array",
+								"nullable": true,
+								"format": "possibleVoid",
+								"items": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"propertyPath": {
+											"type": "string"
+										}
+									}
+								}
+							},
+							"query": {
 								"type": "array",
 								"nullable": true,
 								"format": "possibleVoid",
