@@ -14,6 +14,7 @@ import { userRouter } from "./routes/userRoutes";
 dotenv.config();
 
 const PORT = process.env.PORT ? process.env.PORT : 4000;
+const COOKIE_SECRET = process.env.COOKIE_SECRET ? process.env.COOKIE_SECRET : "cookie_secret";
 
 const main = async () => {
 	try {
@@ -22,7 +23,7 @@ const main = async () => {
 		const app = Express();
 
 		app.use(cors());
-		app.use(cookieParser());
+		app.use(cookieParser(COOKIE_SECRET));
 		app.use(Express.json());
 
 		app.get("/", (_, res) => {

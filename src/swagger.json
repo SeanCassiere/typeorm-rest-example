@@ -231,6 +231,39 @@
 				}
 			}
 		},
+		"/api/users/refreshToken": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "Get new access-token via refresh-token in cookies",
+				"operationId": "refreshAuth",
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"token": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/users/profile": {
 			"get": {
 				"tags": ["Users"],

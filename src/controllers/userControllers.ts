@@ -9,6 +9,7 @@ import { createResetPasswordURL } from "../utils/createResetPasswordURL";
 import { sendEmail } from "../utils/sendEmail";
 import { confirmationEmailPrefix, forgotPasswordPrefix } from "../utils/constants/redisPrefixes";
 import { hashPasswordForUser } from "../utils/hashPasswordForUser";
+import { addMinsToCurrentDate } from "../utils/addMinsToCurrentDate";
 
 import { User } from "../entities/User";
 
@@ -94,21 +95,39 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 
 	if (user && (await bcryptjs.compare(password, user.password))) {
 		const accessToken = generateToken(`${user.id}`, 30);
-		const refreshToken = generateToken(`${user.id}`, 60 * 18);
-		res.cookie("name", refreshToken).json({
-			id: user.id,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			email: user.email,
-			isAdmin: user.isAdmin,
-			isEmailConfirmed: user.isEmailConfirmed,
-			token: accessToken,
-			refreshToken,
-		});
+
+		const refreshTokenDuration = 60 * 18;
+		const cookieExpirationDate = addMinsToCurrentDate(refreshTokenDuration);
+		const refreshToken = generateToken(`${user.id}`, refreshTokenDuration);
+		res
+			.cookie("refreshToken", refreshToken, {
+				secure: process.env.NODE_ENV === "production" ? true : false,
+				httpOnly: true,
+				expires: cookieExpirationDate,
+				signed: true,
+			})
+			.json({
+				id: user.id,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				email: user.email,
+				isAdmin: user.isAdmin,
+				isEmailConfirmed: user.isEmailConfirmed,
+				token: accessToken,
+				refreshToken,
+			});
 	} else {
 		res.status(401);
 		next(new Error("Invalid email or password"));
 	}
+});
+
+// @desc Refresh the user access token
+// @route GET /api/users/refreshAuth
+// @access Private
+export const refreshUserAccessTokenFromCookie = asyncHandler(async (req: CustomRequest<{}>, res) => {
+	const accessToken = generateToken(`${req.user!.id}`, 30);
+	res.json({ token: accessToken });
 });
 
 // @desc Confirm user with token from email
