@@ -19,7 +19,6 @@ export const adminGetAllUsers = asyncHandler(async (req, res) => {
 	let queryOptions = {};
 	if (req.query && req.query.limit) queryOptions = { ...queryOptions, take: req.query.limit };
 	if (req.query && req.query.offset) queryOptions = { ...queryOptions, skip: req.query.offset };
-	console.log("Query Options", queryOptions);
 
 	const users = await User.find({ ...queryOptions });
 	res.json(users);
@@ -94,14 +93,17 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 	}
 
 	if (user && (await bcryptjs.compare(password, user.password))) {
-		res.json({
+		const accessToken = generateToken(`${user.id}`, 30);
+		const refreshToken = generateToken(`${user.id}`, 60 * 18);
+		res.cookie("name", refreshToken).json({
 			id: user.id,
 			firstName: user.firstName,
 			lastName: user.lastName,
 			email: user.email,
 			isAdmin: user.isAdmin,
 			isEmailConfirmed: user.isEmailConfirmed,
-			token: generateToken(`${user.id}`),
+			token: accessToken,
+			refreshToken,
 		});
 	} else {
 		res.status(401);
@@ -250,7 +252,6 @@ export const updateUserProfile = asyncHandler(
 					email: updatedUser.email,
 					isAdmin: updatedUser.isAdmin,
 					isEmailConfirmed: updatedUser.isEmailConfirmed,
-					token: generateToken(`${updatedUser.id}`),
 				});
 			} catch (error) {
 				res.status(500);

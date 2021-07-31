@@ -298,7 +298,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/UserForApplicationWithToken"
+									"$ref": "#/components/schemas/UserForApplication"
 								}
 							}
 						}
@@ -840,6 +840,9 @@
 						"type": "boolean"
 					},
 					"token": {
+						"type": "string"
+					},
+					"refreshToken": {
 						"type": "string"
 					}
 				}
