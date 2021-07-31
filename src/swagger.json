@@ -231,6 +231,31 @@
 				}
 			}
 		},
+		"/api/users/logout": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "Logout user and clear cookie",
+				"operationId": "logoutUser",
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"default": true
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/users/refreshToken": {
 			"get": {
 				"tags": ["Users"],

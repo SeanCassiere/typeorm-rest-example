@@ -130,6 +130,13 @@ export const refreshUserAccessTokenFromCookie = asyncHandler(async (req: CustomR
 	res.json({ token: accessToken });
 });
 
+// @desc Clear refreshToken cookie and logout
+// @route GET /api/users/logout
+// @access Public
+export const logoutUser = asyncHandler(async (_, res) => {
+	res.cookie("refreshToken", "expiring now", { expires: new Date(Date.now()) }).json({ success: true });
+});
+
 // @desc Confirm user with token from email
 // @route POST /api/users/confirmUser
 // @access Public
