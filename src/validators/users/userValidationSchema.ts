@@ -10,7 +10,7 @@ export const userLoginBodySchema = Yup.object().shape({
 	password,
 });
 
-export const confirmUserBodySchema = Yup.object().shape({ token: Yup.string().required() });
+export const confirmUserBodySchema = Yup.object().shape({ token: Yup.string().uuid().required() });
 
 export const registerUserBodySchema = Yup.object().shape({
 	firstName,
@@ -38,6 +38,6 @@ export const adminUserUpdateBodySchema = Yup.object().shape({
 export const resendConfirmationSchema = Yup.object().shape({ email });
 
 export const resetPasswordWithTokenSchema = Yup.object().shape({
-	token: Yup.string().required(),
+	token: Yup.string().uuid().required(),
 	password,
 });

@@ -4,8 +4,11 @@ import Express from "express";
 import cors from "cors";
 import swaggerUI from "swagger-ui-express";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import helmet from "helmet";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware";
+import { blanketApiRateLimiter } from "./middleware/rateLimitMiddleware";
 import swaggerDocument from "./swagger.json";
 import { createTypeormConn } from "./utils/createTypeOrmConn";
 
@@ -23,6 +26,8 @@ const main = async () => {
 		const app = Express();
 
 		app.use(cors());
+		app.use(helmet());
+		app.use(morgan("dev"));
 		app.use(cookieParser(COOKIE_SECRET));
 		app.use(Express.json());
 
@@ -32,6 +37,7 @@ const main = async () => {
 		app.use("/docs", swaggerUI.serve);
 		app.get("/docs", swaggerUI.setup(swaggerDocument));
 
+		app.use("/api", blanketApiRateLimiter);
 		//** Implement API Routes*/
 		app.use("/api/users", userRouter);
 
