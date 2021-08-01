@@ -4,6 +4,7 @@ import Express from "express";
 import cors from "cors";
 import swaggerUI from "swagger-ui-express";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware";
 import swaggerDocument from "./swagger.json";
@@ -23,6 +24,7 @@ const main = async () => {
 		const app = Express();
 
 		app.use(cors());
+		app.use(morgan("dev"));
 		app.use(cookieParser(COOKIE_SECRET));
 		app.use(Express.json());
 
