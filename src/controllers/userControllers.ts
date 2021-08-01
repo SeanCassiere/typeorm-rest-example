@@ -1,6 +1,5 @@
 import asyncHandler from "express-async-handler";
 import bcryptjs from "bcryptjs";
-import { FindOptionsUtils } from "typeorm";
 
 import { generateToken } from "../utils/generateToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
@@ -17,14 +16,39 @@ import { User } from "../entities/User";
 // @desc Get all users for Admin
 // @route GET /api/users
 // @access Private/Admin
-export const adminGetAllUsers = asyncHandler(async (req, res) => {
-	let queryOptions: FindOptionsUtils = { order: { id: "ASC" } };
-	if (req.query && req.query.sortDirection) queryOptions = { ...queryOptions, order: { id: req.query.sortDirection } };
-	if (req.query && req.query.limit) queryOptions = { ...queryOptions, take: req.query.limit };
-	if (req.query && req.query.offset) queryOptions = { ...queryOptions, skip: req.query.offset };
+export const adminGetAllUsers = asyncHandler(async (req, res, next) => {
+	const query = User.createQueryBuilder().select();
 
-	const users = await User.find({ ...queryOptions });
-	res.json(users);
+	// Id sort direction
+	if (req.query && req.query.sortDirection && req.query.sortDirection === "DESC") {
+		query.addOrderBy("id", req.query.sortDirection);
+	} else {
+		query.addOrderBy("id", "ASC");
+	}
+	// DB response size
+	if (req.query && req.query.limit) {
+		const limit = req.query.limit as any;
+		query.take(limit);
+	}
+	// DB response item offset
+	if (req.query && req.query.limit) {
+		const skip = req.query.offset as any;
+		query.skip(skip);
+	}
+	// DB name search from firstName, lastName or email
+	if (req.query && req.query.search) {
+		const search = req.query.search as string;
+		query.where("first_name ILIKE :first", { first: `%${search.toLowerCase()}%` });
+		query.orWhere("last_name ILIKE :last", { last: `%${search.toLowerCase()}%` });
+		query.orWhere("email ILIKE :emaila", { emaila: `%${search.toLowerCase()}%` });
+	}
+	try {
+		const usersQuery = await query.getMany();
+		res.json(usersQuery);
+	} catch (error) {
+		res.status(500);
+		next("Error with the database search");
+	}
 });
 
 // @desc Get user by ID for Admin

@@ -49,6 +49,14 @@
 				"operationId": "getAllUsers",
 				"parameters": [
 					{
+						"name": "search",
+						"in": "query",
+						"description": "Search from firstName, lastName and email",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
 						"name": "limit",
 						"in": "query",
 						"description": "Limit number of items in the query",
@@ -67,10 +75,9 @@
 					{
 						"name": "sortDirection",
 						"in": "query",
-						"description": "Sort Id in ASC or DESC order",
+						"description": "Sorting order of the Id",
 						"schema": {
-							"type": "string",
-							"format": "ASC or DESC"
+							"$ref": "#/components/schemas/SortDirection"
 						}
 					}
 				],
@@ -829,6 +836,10 @@
 						"nullable": true
 					}
 				}
+			},
+			"SortDirection": {
+				"type": "string",
+				"enum": ["ASC", "DESC"]
 			},
 			"UserFromDB": {
 				"type": "object",

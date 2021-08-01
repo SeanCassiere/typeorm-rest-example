@@ -79,6 +79,7 @@ export const adminGetAllUsersValidator: ExpressYupMiddlewareInterface = {
 	schema: {
 		query: {
 			yupSchema: Yup.object().shape({
+				search: Yup.string(),
 				...commonPaginationOptions,
 			}),
 			...commonValidationOptions,
