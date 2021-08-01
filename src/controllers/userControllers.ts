@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import bcryptjs from "bcryptjs";
+import { FindOptionsUtils } from "typeorm";
 
 import { generateToken } from "../utils/generateToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
@@ -17,7 +18,8 @@ import { User } from "../entities/User";
 // @route GET /api/users
 // @access Private/Admin
 export const adminGetAllUsers = asyncHandler(async (req, res) => {
-	let queryOptions = {};
+	let queryOptions: FindOptionsUtils = { order: { id: "ASC" } };
+	if (req.query && req.query.sortDirection) queryOptions = { ...queryOptions, order: { id: req.query.sortDirection } };
 	if (req.query && req.query.limit) queryOptions = { ...queryOptions, take: req.query.limit };
 	if (req.query && req.query.offset) queryOptions = { ...queryOptions, skip: req.query.offset };
 
@@ -94,11 +96,11 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 	}
 
 	if (user && (await bcryptjs.compare(password, user.password))) {
-		const accessToken = generateToken(`${user.id}`, 30);
+		const accessToken = generateToken("ACCESS_TOKEN", `${user.id}`, 30);
 
 		const refreshTokenDuration = 60 * 18;
 		const cookieExpirationDate = addMinsToCurrentDate(refreshTokenDuration);
-		const refreshToken = generateToken(`${user.id}`, refreshTokenDuration);
+		const refreshToken = generateToken("REFRESH_TOKEN", `${user.id}`, refreshTokenDuration);
 		res
 			.cookie("refreshToken", refreshToken, {
 				secure: process.env.NODE_ENV === "production" ? true : false,
@@ -126,7 +128,7 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 // @route GET /api/users/refreshAuth
 // @access Private
 export const refreshUserAccessTokenFromCookie = asyncHandler(async (req: CustomRequest<{}>, res) => {
-	const accessToken = generateToken(`${req.user!.id}`, 30);
+	const accessToken = generateToken("ACCESS_TOKEN", `${req.user!.id}`, 30);
 	res.json({ token: accessToken });
 });
 
@@ -232,8 +234,7 @@ export const registerUser = asyncHandler(
 // @route GET /api/users/profile
 // @access Private
 export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res, next) => {
-	const user = await User.findOne({ where: { id: req.user!.id } });
-
+	const user = req.user;
 	if (user) {
 		res.json({
 			id: user.id,
@@ -258,8 +259,7 @@ export const updateUserProfile = asyncHandler(
 		res,
 		next
 	) => {
-		const user = await User.findOne({ where: { id: req.user!.id } });
-
+		const user = req.user;
 		if (user) {
 			user.firstName = req.body.firstName || user.firstName;
 			user.lastName = req.body.lastName || user.lastName;
