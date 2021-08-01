@@ -96,11 +96,11 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 	}
 
 	if (user && (await bcryptjs.compare(password, user.password))) {
-		const accessToken = generateToken(`${user.id}`, 30);
+		const accessToken = generateToken("ACCESS_TOKEN", `${user.id}`, 30);
 
 		const refreshTokenDuration = 60 * 18;
 		const cookieExpirationDate = addMinsToCurrentDate(refreshTokenDuration);
-		const refreshToken = generateToken(`${user.id}`, refreshTokenDuration);
+		const refreshToken = generateToken("REFRESH_TOKEN", `${user.id}`, refreshTokenDuration);
 		res
 			.cookie("refreshToken", refreshToken, {
 				secure: process.env.NODE_ENV === "production" ? true : false,
@@ -128,7 +128,7 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 // @route GET /api/users/refreshAuth
 // @access Private
 export const refreshUserAccessTokenFromCookie = asyncHandler(async (req: CustomRequest<{}>, res) => {
-	const accessToken = generateToken(`${req.user!.id}`, 30);
+	const accessToken = generateToken("ACCESS_TOKEN", `${req.user!.id}`, 30);
 	res.json({ token: accessToken });
 });
 

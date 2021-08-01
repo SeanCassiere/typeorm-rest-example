@@ -1,4 +1,3 @@
-// import { verify, Secret } from "jsonwebtoken";
 import { NextFunction, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Secret, verify } from "jsonwebtoken";
@@ -8,6 +7,7 @@ import { GeneratedTokenInterface } from "../interfaces/generatedToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET || "dev_jwt_secret";
+const REFRESH_JWT_SECRET: Secret = process.env.REFRESH_JWT_SECRET || "dev_refresh_jwt_secret";
 
 export const protect = asyncHandler(async (req: CustomRequest<{}>, res, next: NextFunction) => {
 	let token: string = "";
@@ -52,7 +52,7 @@ export const isRefreshCookieValid = asyncHandler(async (req: CustomRequest<{}>, 
 	if (req.signedCookies && req.signedCookies.refreshToken) {
 		const token = req.signedCookies.refreshToken;
 		try {
-			const decoded = verify(token, JWT_SECRET) as GeneratedTokenInterface;
+			const decoded = verify(token, REFRESH_JWT_SECRET) as GeneratedTokenInterface;
 
 			const userFound = await User.findOne({ where: { id: decoded.id } });
 
