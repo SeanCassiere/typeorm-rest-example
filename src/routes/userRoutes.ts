@@ -2,6 +2,7 @@ import { Router } from "express";
 import { expressYupMiddleware } from "express-yup-middleware";
 
 import { isAdmin, protect, isRefreshCookieValid } from "../middleware/authMiddleware";
+import { registerRouteRateLimiter } from "../middleware/rateLimitMiddleware";
 import {
 	confirmUserValidator,
 	registerUserValidator,
@@ -34,7 +35,7 @@ const userRouter = Router();
 userRouter
 	.route("/")
 	.get(protect, isAdmin, expressYupMiddleware({ schemaValidator: adminGetAllUsersValidator }), adminGetAllUsers)
-	.post(expressYupMiddleware({ schemaValidator: registerUserValidator }), registerUser);
+	.post(expressYupMiddleware({ schemaValidator: registerUserValidator }), registerRouteRateLimiter, registerUser);
 
 userRouter.route("/login").post(expressYupMiddleware({ schemaValidator: userLoginValidator }), authUser);
 

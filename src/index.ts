@@ -8,6 +8,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware";
+import { blanketApiRateLimiter } from "./middleware/rateLimitMiddleware";
 import swaggerDocument from "./swagger.json";
 import { createTypeormConn } from "./utils/createTypeOrmConn";
 
@@ -36,6 +37,7 @@ const main = async () => {
 		app.use("/docs", swaggerUI.serve);
 		app.get("/docs", swaggerUI.setup(swaggerDocument));
 
+		app.use("/api", blanketApiRateLimiter);
 		//** Implement API Routes*/
 		app.use("/api/users", userRouter);
 
