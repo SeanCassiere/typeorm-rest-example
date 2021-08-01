@@ -19,6 +19,7 @@ import { User } from "../entities/User";
 // @access Private/Admin
 export const adminGetAllUsers = asyncHandler(async (req, res) => {
 	let queryOptions: FindOptionsUtils = { order: { id: "ASC" } };
+	if (req.query && req.query.sortDirection) queryOptions = { ...queryOptions, order: { id: req.query.sortDirection } };
 	if (req.query && req.query.limit) queryOptions = { ...queryOptions, take: req.query.limit };
 	if (req.query && req.query.offset) queryOptions = { ...queryOptions, skip: req.query.offset };
 

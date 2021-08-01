@@ -143,6 +143,15 @@
 						"schema": {
 							"type": "integer"
 						}
+					},
+					{
+						"name": "sortDirection",
+						"in": "query",
+						"description": "Sort Id in ASC or DESC order",
+						"schema": {
+							"type": "string",
+							"format": "ASC or DESC"
+						}
 					}
 				],
 				"security": [{ "bearerAuth": [] }],
