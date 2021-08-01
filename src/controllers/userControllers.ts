@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import bcryptjs from "bcryptjs";
+import { FindOptionsUtils } from "typeorm";
 
 import { generateToken } from "../utils/generateToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
@@ -17,7 +18,7 @@ import { User } from "../entities/User";
 // @route GET /api/users
 // @access Private/Admin
 export const adminGetAllUsers = asyncHandler(async (req, res) => {
-	let queryOptions = {};
+	let queryOptions: FindOptionsUtils = { order: { id: "ASC" } };
 	if (req.query && req.query.limit) queryOptions = { ...queryOptions, take: req.query.limit };
 	if (req.query && req.query.offset) queryOptions = { ...queryOptions, skip: req.query.offset };
 
@@ -232,8 +233,7 @@ export const registerUser = asyncHandler(
 // @route GET /api/users/profile
 // @access Private
 export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res, next) => {
-	const user = await User.findOne({ where: { id: req.user!.id } });
-
+	const user = req.user;
 	if (user) {
 		res.json({
 			id: user.id,
@@ -258,8 +258,7 @@ export const updateUserProfile = asyncHandler(
 		res,
 		next
 	) => {
-		const user = await User.findOne({ where: { id: req.user!.id } });
-
+		const user = req.user;
 		if (user) {
 			user.firstName = req.body.firstName || user.firstName;
 			user.lastName = req.body.lastName || user.lastName;
