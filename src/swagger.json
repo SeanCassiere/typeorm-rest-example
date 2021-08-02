@@ -354,10 +354,6 @@
 									"lastName": {
 										"type": "string"
 									},
-									"email": {
-										"type": "string",
-										"format": "email"
-									},
 									"password": {
 										"type": "string"
 									}
@@ -507,6 +503,111 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/users/changeEmail": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Request confirmation email be sent to verify new email",
+				"operationId": "sendChangeEmailConfirmation",
+				"security": [{ "bearerAuth": [] }],
+				"requestBody": {
+					"description": "Send the email address to replace the existing one so a confirmation can be sent.",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid token or user not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": ["Users"],
+				"summary": "Confirms the new user email into the system",
+				"operationId": "confirmNewUserEmail",
+				"requestBody": {
+					"description": "Confirms the new user email",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"token": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserForApplication"
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
 								}
 							}
 						}
@@ -733,7 +834,7 @@
 			},
 			"delete": {
 				"tags": ["Users", "Admin"],
-				"summary": "Admin Delete a user by Id",
+				"summary": "Admin deactivate user by Id",
 				"operationId": "deleteUserById",
 				"security": [{ "bearerAuth": [] }],
 				"parameters": [

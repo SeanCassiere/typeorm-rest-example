@@ -22,7 +22,6 @@ export const registerUserBodySchema = Yup.object().shape({
 export const selfUserUpdateBodySchema = Yup.object().shape({
 	firstName: Yup.string().min(3),
 	lastName: Yup.string().min(3),
-	email: Yup.string().email(),
 	password: Yup.string().min(3),
 });
 

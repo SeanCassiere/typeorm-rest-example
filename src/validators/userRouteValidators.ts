@@ -57,7 +57,7 @@ export const bodyEmailOnlyValidator: ExpressYupMiddlewareInterface = {
 	},
 };
 
-export const resetPasswordWithTokenValidator: ExpressYupMiddlewareInterface = {
+export const bodyTokenOnlyValidatory: ExpressYupMiddlewareInterface = {
 	schema: {
 		body: {
 			yupSchema: resetPasswordWithTokenSchema,

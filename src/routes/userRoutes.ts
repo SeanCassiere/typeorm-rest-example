@@ -9,7 +9,7 @@ import {
 	selfUpdateUserValidator,
 	userLoginValidator,
 	bodyEmailOnlyValidator,
-	resetPasswordWithTokenValidator,
+	bodyTokenOnlyValidatory,
 	adminUpdateUserValidator,
 	adminGetAllUsersValidator,
 } from "../validators/userRouteValidators";
@@ -28,6 +28,8 @@ import {
 	updateUserProfile,
 	refreshUserAccessTokenFromCookie,
 	logoutUser,
+	sendChangeEmailConfirmation,
+	confirmChangeEmail,
 } from "../controllers/userControllers";
 
 const userRouter = Router();
@@ -54,9 +56,14 @@ userRouter
 	.put(expressYupMiddleware({ schemaValidator: confirmUserValidator }), confirmUser);
 
 userRouter
+	.route("/changeEmail")
+	.post(protect, expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), sendChangeEmailConfirmation)
+	.put(expressYupMiddleware({ schemaValidator: bodyTokenOnlyValidatory }), confirmChangeEmail);
+
+userRouter
 	.route("/resetPassword")
 	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), sendResetPasswordEmail)
-	.put(expressYupMiddleware({ schemaValidator: resetPasswordWithTokenValidator }), resetPasswordWithToken);
+	.put(expressYupMiddleware({ schemaValidator: bodyTokenOnlyValidatory }), resetPasswordWithToken);
 
 userRouter
 	.route("/:id")

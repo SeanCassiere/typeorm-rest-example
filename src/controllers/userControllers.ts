@@ -1,13 +1,15 @@
 import asyncHandler from "express-async-handler";
 import bcryptjs from "bcryptjs";
+import { decode } from "jsonwebtoken";
 
 import { generateToken } from "../utils/generateToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
 import { redis } from "../redis";
-import { createConfirmationUrl } from "../utils/createConfirmationURL";
-import { createResetPasswordURL } from "../utils/createResetPasswordURL";
-import { sendEmail } from "../utils/sendEmail";
-import { confirmationEmailPrefix, forgotPasswordPrefix } from "../utils/constants/redisPrefixes";
+import { createConfirmationUrl } from "../utils/email/createConfirmationURL";
+import { createResetPasswordURL } from "../utils/email/createResetPasswordURL";
+import { createChangeEmailUrl } from "../utils/email/createChangeEmailURL";
+import { sendEmail } from "../utils/email/sendEmail";
+import { changeEmailPrefix, confirmationEmailPrefix, forgotPasswordPrefix } from "../utils/constants/redisPrefixes";
 import { hashPasswordForUser } from "../utils/hashPasswordForUser";
 import { addMinsToCurrentDate } from "../utils/addMinsToCurrentDate";
 
@@ -120,11 +122,11 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 	}
 
 	if (user && (await bcryptjs.compare(password, user.password))) {
-		const accessToken = generateToken("ACCESS_TOKEN", `${user.id}`, 30);
+		const accessToken = generateToken("ACCESS_TOKEN", { id: `${user.id}` }, 30);
 
 		const refreshTokenDuration = 60 * 18;
 		const cookieExpirationDate = addMinsToCurrentDate(refreshTokenDuration);
-		const refreshToken = generateToken("REFRESH_TOKEN", `${user.id}`, refreshTokenDuration);
+		const refreshToken = generateToken("REFRESH_TOKEN", { id: `${user.id}` }, refreshTokenDuration);
 		res
 			.cookie("refreshToken", refreshToken, {
 				secure: process.env.NODE_ENV === "production" ? true : false,
@@ -152,7 +154,7 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 // @route GET /api/users/refreshAuth
 // @access Private
 export const refreshUserAccessTokenFromCookie = asyncHandler(async (req: CustomRequest<{}>, res) => {
-	const accessToken = generateToken("ACCESS_TOKEN", `${req.user!.id}`, 30);
+	const accessToken = generateToken("ACCESS_TOKEN", { id: `${req.user!.id}` }, 30);
 	res.json({ token: accessToken });
 });
 
@@ -164,7 +166,7 @@ export const logoutUser = asyncHandler(async (_, res) => {
 });
 
 // @desc Confirm user with token from email
-// @route POST /api/users/confirmUser
+// @route PUT /api/users/confirmUser
 // @access Public
 export const confirmUser = asyncHandler(async (req: CustomRequest<{ token: string }>, res, next) => {
 	const { token } = req.body;
@@ -197,7 +199,7 @@ export const confirmUser = asyncHandler(async (req: CustomRequest<{ token: strin
 });
 
 // @desc Request new confirmation email
-// @route POST /api/users/resendConfirmationEmail
+// @route POST /api/users/confirmUser
 // @access Public
 export const resendConfirmation = asyncHandler(async (req: CustomRequest<{ email: string }>, res) => {
 	const { email } = req.body;
@@ -278,16 +280,11 @@ export const getUserProfile = asyncHandler(async (req: CustomRequest<{}>, res, n
 // @route PUT /api/users/profile
 // @access Private
 export const updateUserProfile = asyncHandler(
-	async (
-		req: CustomRequest<{ firstName?: string; lastName?: string; email?: string; password?: string }>,
-		res,
-		next
-	) => {
+	async (req: CustomRequest<{ firstName?: string; lastName?: string; password?: string }>, res, next) => {
 		const user = req.user;
 		if (user) {
 			user.firstName = req.body.firstName || user.firstName;
 			user.lastName = req.body.lastName || user.lastName;
-			user.email = req.body.email?.toLowerCase() || user.email;
 			if (req.body && req.body.password) {
 				user.password = await bcryptjs.hash(req.body.password, 12);
 			}
@@ -315,7 +312,7 @@ export const updateUserProfile = asyncHandler(
 );
 
 // @desc Request new confirmation email
-// @route POST /api/users/sendForgotPasswordEmail
+// @route POST /api/users/resetPassword
 // @access Public
 export const sendResetPasswordEmail = asyncHandler(async (req: CustomRequest<{ email: string }>, res) => {
 	const { email } = req.body;
@@ -331,7 +328,7 @@ export const sendResetPasswordEmail = asyncHandler(async (req: CustomRequest<{ e
 });
 
 // @desc Request new confirmation email
-// @route POST /api/users/resetPassword
+// @route PUT /api/users/resetPassword
 // @access Public
 export const resetPasswordWithToken = asyncHandler(
 	async (req: CustomRequest<{ token: string; password: string }>, res, next) => {
@@ -355,3 +352,54 @@ export const resetPasswordWithToken = asyncHandler(
 		}
 	}
 );
+
+// @desc Send confirmation email to new email address
+// @route POST /api/users/changeEmail
+// @access Private
+export const sendChangeEmailConfirmation = asyncHandler(async (req: CustomRequest<{ email: string }>, res) => {
+	const user = req.user!;
+	const { email } = req.body;
+	await sendEmail(email, await createChangeEmailUrl({ id: `${user.id}`, email }));
+	res.status(200).json({ message: "Success" });
+});
+
+// @desc Confirm new email change
+// @route PUT /api/users/changeEmail
+// @access Public
+export const confirmChangeEmail = asyncHandler(async (req: CustomRequest<{ token: string }>, res, next) => {
+	let userOptions: { id: string; email: string } = { id: "", email: "" };
+	const { token } = req.body;
+
+	const changeOptionsJWT = await redis.get(changeEmailPrefix + token);
+
+	if (!changeOptionsJWT) {
+		res.status(401);
+		next(new Error("Token invalid, please request new token"));
+	}
+
+	try {
+		const decoded = decode(changeOptionsJWT!) as { id: string; email: string };
+		console.log("Decoded", decoded);
+		userOptions = decoded;
+	} catch (error) {
+		res.status(401);
+		next(new Error("Token invalid, please request new token"));
+	}
+	console.log("userOptions", userOptions);
+	const user = await User.findOne({ where: { id: userOptions.id } });
+
+	if (!user) res.status(404).json({ message: "User not found" });
+
+	if (user) {
+		user.email = userOptions.email;
+		await user.save();
+		res.status(200).json({
+			id: user.id,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			email: user.email,
+			isAdmin: user.isAdmin,
+			isEmailConfirmed: user.isEmailConfirmed,
+		});
+	}
+});
