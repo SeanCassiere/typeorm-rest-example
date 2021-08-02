@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 import { decode } from "jsonwebtoken";
 
 import { generateToken } from "../utils/generateToken";
+import { GeneratedTokenInterface } from "../interfaces/generatedToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
 import { redis } from "../redis";
 import { createConfirmationUrl } from "../utils/email/createConfirmationURL";
@@ -367,7 +368,7 @@ export const sendChangeEmailConfirmation = asyncHandler(async (req: CustomReques
 // @route PUT /api/users/changeEmail
 // @access Public
 export const confirmChangeEmail = asyncHandler(async (req: CustomRequest<{ token: string }>, res, next) => {
-	let userOptions: { id: string; email: string } = { id: "", email: "" };
+	let userOptions: GeneratedTokenInterface = { id: "", email: "" };
 	const { token } = req.body;
 
 	const changeOptionsJWT = await redis.get(changeEmailPrefix + token);
@@ -379,19 +380,18 @@ export const confirmChangeEmail = asyncHandler(async (req: CustomRequest<{ token
 
 	try {
 		const decoded = decode(changeOptionsJWT!) as { id: string; email: string };
-		console.log("Decoded", decoded);
 		userOptions = decoded;
 	} catch (error) {
 		res.status(401);
 		next(new Error("Token invalid, please request new token"));
 	}
-	console.log("userOptions", userOptions);
+
 	const user = await User.findOne({ where: { id: userOptions.id } });
 
 	if (!user) res.status(404).json({ message: "User not found" });
 
 	if (user) {
-		user.email = userOptions.email;
+		user.email = userOptions.email!;
 		await user.save();
 		res.status(200).json({
 			id: user.id,
