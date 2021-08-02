@@ -413,6 +413,55 @@
 		"/api/users/confirmUser": {
 			"post": {
 				"tags": ["Users"],
+				"summary": "Request new account confirmation email",
+				"operationId": "resendConfirmationEmail",
+				"requestBody": {
+					"description": "Pass email to check and send email from db. Will always return true for security purposes",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": true,
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": ["Users"],
 				"summary": "Confirms the user email into the system",
 				"operationId": "confirmUser",
 				"requestBody": {
@@ -465,58 +514,7 @@
 				}
 			}
 		},
-		"/api/users/resendConfirmationEmail": {
-			"post": {
-				"tags": ["Users"],
-				"summary": "Request new account confirmation email",
-				"operationId": "resendConfirmationEmail",
-				"requestBody": {
-					"description": "Pass email to check and send email from db. Will always return true for security purposes",
-					"content": {
-						"application/json": {
-							"schema": {
-								"type": "object",
-								"required": true,
-								"properties": {
-									"email": {
-										"type": "string",
-										"format": "email"
-									}
-								}
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"description": "successful operation",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"message": {
-											"type": "string"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/api/users/sendForgotPasswordEmail": {
+		"/api/users/resetPassword": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Send reset password link to email",
@@ -562,12 +560,10 @@
 						}
 					}
 				}
-			}
-		},
-		"/api/users/resetPassword": {
-			"post": {
+			},
+			"put": {
 				"tags": ["Users"],
-				"summary": "Reset the user password with the token from the email",
+				"summary": "Change user password using the token from the email",
 				"operationId": "resetPasswordWithToken",
 				"requestBody": {
 					"content": {

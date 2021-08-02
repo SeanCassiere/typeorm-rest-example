@@ -5,6 +5,6 @@ export const commonValidationOptions = {
 
 export const commonPaginationOptions = {
 	limit: Yup.number().positive(),
-	offset: Yup.number().positive(),
+	offset: Yup.number().min(0),
 	sortDirection: Yup.string().oneOf(["ASC", "DESC"]),
 };

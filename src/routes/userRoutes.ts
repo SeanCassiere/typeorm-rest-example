@@ -48,19 +48,15 @@ userRouter
 	.get(protect, getUserProfile)
 	.put(protect, expressYupMiddleware({ schemaValidator: selfUpdateUserValidator }), updateUserProfile);
 
-userRouter.route("/confirmUser").post(expressYupMiddleware({ schemaValidator: confirmUserValidator }), confirmUser);
-
 userRouter
-	.route("/resendConfirmationEmail")
-	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), resendConfirmation);
-
-userRouter
-	.route("/sendForgotPasswordEmail")
-	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), sendResetPasswordEmail);
+	.route("/confirmUser")
+	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), resendConfirmation)
+	.put(expressYupMiddleware({ schemaValidator: confirmUserValidator }), confirmUser);
 
 userRouter
 	.route("/resetPassword")
-	.post(expressYupMiddleware({ schemaValidator: resetPasswordWithTokenValidator }), resetPasswordWithToken);
+	.post(expressYupMiddleware({ schemaValidator: bodyEmailOnlyValidator }), sendResetPasswordEmail)
+	.put(expressYupMiddleware({ schemaValidator: resetPasswordWithTokenValidator }), resetPasswordWithToken);
 
 userRouter
 	.route("/:id")

@@ -21,6 +21,9 @@ export const protect = asyncHandler(async (req: CustomRequest<{}>, res, next: Ne
 
 			if (userFound && userFound.isActive) {
 				req.user = userFound;
+			} else if (userFound && !userFound.isActive) {
+				res.status(401);
+				next(new Error("User account not active. Please contact administrator"));
 			} else {
 				throw new Error("No User found");
 			}
