@@ -57,17 +57,17 @@
 						}
 					},
 					{
-						"name": "limit",
+						"name": "page",
 						"in": "query",
-						"description": "Limit number of items in the query",
+						"description": "Change page based on pageSize",
 						"schema": {
 							"type": "integer"
 						}
 					},
 					{
-						"name": "offset",
+						"name": "pageSize",
 						"in": "query",
-						"description": "Offset number of items in the query",
+						"description": "Return users pageSize",
 						"schema": {
 							"type": "integer"
 						}
@@ -92,10 +92,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/UserFromDB"
-									}
+									"$ref": "#/components/schemas/AdminGetAllUsersFromDB"
 								}
 							}
 						}
@@ -106,6 +103,16 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/FieldValidationError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/StandardError"
 								}
 							}
 						}
@@ -950,6 +957,28 @@
 			"SortDirection": {
 				"type": "string",
 				"enum": ["ASC", "DESC"]
+			},
+			"AdminGetAllUsersFromDB": {
+				"type": "object",
+				"properties": {
+					"prev": {
+						"type": "boolean",
+						"default": false
+					},
+					"next": {
+						"type": "boolean",
+						"default": false
+					},
+					"total": {
+						"type": "integer"
+					},
+					"users": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/UserFromDB"
+						}
+					}
+				}
 			},
 			"UserFromDB": {
 				"type": "object",

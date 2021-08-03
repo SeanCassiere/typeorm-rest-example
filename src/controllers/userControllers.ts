@@ -13,6 +13,7 @@ import { sendEmail } from "../utils/email/sendEmail";
 import { changeEmailPrefix, confirmationEmailPrefix, forgotPasswordPrefix } from "../utils/constants/redisPrefixes";
 import { hashPasswordForUser } from "../utils/hashPasswordForUser";
 import { addMinsToCurrentDate } from "../utils/addMinsToCurrentDate";
+import { isNextPageAvailable, isPrevPageAvailable } from "../utils/routeHelpers";
 
 import { User } from "../entities/User";
 
@@ -21,34 +22,39 @@ import { User } from "../entities/User";
 // @access Private/Admin
 export const adminGetAllUsers = asyncHandler(async (req, res, next) => {
 	const query = User.createQueryBuilder().select();
+	const page = parseInt(req.query.page as any) || 1;
+	const pageSize = parseInt(req.query.pageSize as any) || 0;
 
 	// Id sort direction
 	if (req.query && req.query.sortDirection && req.query.sortDirection === "DESC") {
 		query.addOrderBy("id", req.query.sortDirection);
 	} else {
-		query.addOrderBy("id", "ASC");
+		query.addOrderBy("id", req.query.sortDirection as "ASC");
 	}
-	// DB response size
-	if (req.query && req.query.limit) {
-		const limit = parseInt(req.query.limit as string);
-		query.take(limit);
-	}
-	// DB response item offset
-	if (req.query && req.query.offset) {
-		const skip = parseInt(req.query.offset as string);
-		query.skip(skip);
-	}
+
+	// Limit query to pageSize number
+	query.take(pageSize);
+
+	// Offset items in query by shifting across the pageSize and the pages.
+	const skipAmount = pageSize * (page - 1);
+	query.skip(skipAmount);
+
 	// DB name search from firstName, lastName or email
 	if (req.query && req.query.search) {
 		const search = req.query.search as string;
-		query.where("first_name ILIKE :first", { first: `%${search.toLowerCase()}%` });
-		query.orWhere("last_name ILIKE :last", { last: `%${search.toLowerCase()}%` });
-		query.orWhere("email ILIKE :emaila", { emaila: `%${search.toLowerCase()}%` });
+		query.where("first_name ILIKE :searcher", { searcher: `%${search.toLowerCase()}%` });
+		query.orWhere("last_name ILIKE :searcher", { searcher: `%${search.toLowerCase()}%` });
+		query.orWhere("email ILIKE :searcher", { searcher: `%${search.toLowerCase()}%` });
 	}
 
 	try {
-		const usersQuery = await query.getMany();
-		res.json(usersQuery);
+		const usersQuery = await query.getManyAndCount();
+		res.json({
+			prev: isPrevPageAvailable(skipAmount),
+			next: isNextPageAvailable(usersQuery[1], usersQuery[0].length, skipAmount),
+			total: usersQuery[1],
+			users: usersQuery[0],
+		});
 	} catch (error) {
 		res.status(500);
 		next("Error with the database search");

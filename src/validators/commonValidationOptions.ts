@@ -4,7 +4,7 @@ export const commonValidationOptions = {
 };
 
 export const commonPaginationOptions = {
-	limit: Yup.number().positive(),
-	offset: Yup.number().min(0),
+	pageSize: Yup.number().positive(),
+	page: Yup.number().positive(),
 	sortDirection: Yup.string().oneOf(["ASC", "DESC"]),
 };
