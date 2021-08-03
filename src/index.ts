@@ -32,11 +32,10 @@ const main = async () => {
 		app.use(Express.json());
 
 		app.get("/", (_, res) => {
-			res.send("hello world");
+			res.redirect("/docs");
 		});
 
-		app.use("/docs", swaggerUI.serve);
-		app.get("/docs", swaggerUI.setup(swaggerDocument));
+		app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 		app.get("/docs/swagger.json", (_, res) => {
 			res.status(200).send(swaggerDocument);

@@ -233,8 +233,7 @@ export const registerUser = asyncHandler(
 		const userExists = await User.findOne({ where: { email: email } });
 
 		if (userExists) {
-			res.status(400);
-			next(new Error("User already exists"));
+			res.status(400).json({ body: { message: "Email already in use", propertyPath: "email" } });
 		} else {
 			const newPassword = await hashPasswordForUser(password);
 
@@ -245,9 +244,8 @@ export const registerUser = asyncHandler(
 				password: newPassword,
 			}).save();
 
-			await sendEmail(user.email, await createConfirmationUrl(user.id));
-
 			if (user) {
+				await sendEmail(user.email, await createConfirmationUrl(user.id));
 				res.status(201).json({
 					id: user.id,
 					firstName: user.firstName,

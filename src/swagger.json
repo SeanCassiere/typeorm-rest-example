@@ -1,5 +1,5 @@
 {
-	"openapi": "3.0.1",
+	"openapi": "3.0.0",
 	"info": {
 		"title": "typeorm-rest-example",
 		"description": "This is a example REST API using TypeORM.",
@@ -19,7 +19,9 @@
 	},
 	"servers": [
 		{
-			"url": "http://localhost:4000"
+			"url": "http://localhost:4000/api",
+			"description": "Development server",
+			"variables": {}
 		}
 	],
 	"tags": [
@@ -41,12 +43,12 @@
 		}
 	],
 	"paths": {
-		"/api/users": {
+		"/users": {
 			"get": {
 				"tags": ["Users", "Admin"],
 				"summary": "Admin Get all users",
 				"description": "This can only be done by an isAdmin user.",
-				"operationId": "getAllUsers",
+				"operationId": "AdminGetAllUsers",
 				"parameters": [
 					{
 						"name": "search",
@@ -98,24 +100,10 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					},
 					"401": {
-						"description": "Unauthorized",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/UnauthorizedError"
 					}
 				},
 				"x-codegen-request-body-name": "body"
@@ -124,7 +112,7 @@
 				"tags": ["Users"],
 				"summary": "Register a user",
 				"description": "Register a user on the platform.",
-				"operationId": "registerUser",
+				"operationId": "RegisterUser",
 				"requestBody": {
 					"description": "User object required for registering",
 					"content": {
@@ -163,24 +151,18 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					}
 				},
-				"x-codegen-request-body-name": "body"
+				"x-codegen-request-body-name": "body",
+				"parameters": []
 			}
 		},
-		"/api/users/login": {
+		"/users/login": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Logs user into the system",
-				"operationId": "loginUser",
+				"operationId": "LoginUser",
 				"requestBody": {
 					"description": "Login a user",
 					"content": {
@@ -213,33 +195,20 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					},
 					"401": {
-						"description": "Login error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/UnauthorizedError"
 					}
-				}
+				},
+				"parameters": []
 			}
 		},
-		"/api/users/logout": {
+		"/users/logout": {
 			"get": {
 				"tags": ["Users"],
 				"summary": "Logout user and clear cookie",
-				"operationId": "logoutUser",
+				"operationId": "LogoutUser",
 				"responses": {
 					"200": {
 						"description": "successful operation",
@@ -257,14 +226,15 @@
 							}
 						}
 					}
-				}
+				},
+				"parameters": []
 			}
 		},
-		"/api/users/refreshToken": {
+		"/users/refreshToken": {
 			"get": {
 				"tags": ["Users"],
 				"summary": "Get new access-token via refresh-token in cookies",
-				"operationId": "refreshAuth",
+				"operationId": "RefreshAuth",
 				"responses": {
 					"200": {
 						"description": "successful operation",
@@ -282,23 +252,17 @@
 						}
 					},
 					"401": {
-						"description": "Refresh token validation failed, must login again",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/UnauthorizedError"
 					}
-				}
+				},
+				"parameters": []
 			}
 		},
-		"/api/users/profile": {
+		"/users/profile": {
 			"get": {
 				"tags": ["Users"],
 				"summary": "Fetch the profile of the currently logged-in user",
-				"operationId": "fetchCurrentUserProfile",
+				"operationId": "FetchCurrentUserProfile",
 				"security": [
 					{
 						"bearerAuth": []
@@ -316,22 +280,16 @@
 						}
 					},
 					"404": {
-						"description": "Cannot find the user",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/NotFound"
 					}
 				},
-				"x-codegen-request-body-name": "body"
+				"x-codegen-request-body-name": "body",
+				"parameters": []
 			},
 			"put": {
 				"tags": ["Users"],
 				"summary": "Update the profile of the currently logged-in user",
-				"operationId": "updateCurrentUserProfile",
+				"operationId": "UpdateCurrentUserProfile",
 				"security": [
 					{
 						"bearerAuth": []
@@ -360,54 +318,24 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					},
 					"401": {
-						"description": "User is not logged in",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/UnauthorizedError"
 					},
 					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "Internal server error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/NotFound"
 					}
 				},
-				"x-codegen-request-body-name": "body"
+				"x-codegen-request-body-name": "body",
+				"parameters": []
 			}
 		},
-		"/api/users/confirmUser": {
+		"/users/confirmUser": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Request new account confirmation email",
-				"operationId": "resendConfirmationEmail",
+				"operationId": "ResendConfirmationEmail",
 				"requestBody": {
 					"description": "Pass email to check and send email from db. Will always return true for security purposes",
 					"content": {
@@ -442,21 +370,15 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					}
-				}
+				},
+				"parameters": []
 			},
 			"put": {
 				"tags": ["Users"],
 				"summary": "Confirms the user email into the system",
-				"operationId": "confirmUser",
+				"operationId": "ConfirmUser",
 				"requestBody": {
 					"description": "Confirm user email",
 					"content": {
@@ -465,7 +387,8 @@
 								"type": "object",
 								"properties": {
 									"token": {
-										"type": "string"
+										"type": "string",
+										"format": "uuid"
 									}
 								}
 							}
@@ -485,33 +408,20 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					},
 					"401": {
-						"description": "Invalid token or user not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/UnauthorizedError"
 					}
-				}
+				},
+				"parameters": []
 			}
 		},
-		"/api/users/changeEmail": {
+		"/users/changeEmail": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Request confirmation email be sent to verify new email",
-				"operationId": "sendChangeEmailConfirmation",
+				"operationId": "SendChangeEmailConfirmation",
 				"security": [
 					{
 						"bearerAuth": []
@@ -551,31 +461,18 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					},
 					"401": {
-						"description": "Invalid token or user not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/UnauthorizedError"
 					}
-				}
+				},
+				"parameters": []
 			},
 			"put": {
 				"tags": ["Users"],
 				"summary": "Confirms the new user email into the system",
-				"operationId": "confirmNewUserEmail",
+				"operationId": "ConfirmNewUserEmail",
 				"requestBody": {
 					"description": "Confirms the new user email",
 					"content": {
@@ -584,7 +481,8 @@
 								"type": "object",
 								"properties": {
 									"token": {
-										"type": "string"
+										"type": "string",
+										"format": "uuid"
 									}
 								}
 							}
@@ -604,23 +502,17 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					}
-				}
+				},
+				"parameters": []
 			}
 		},
-		"/api/users/resetPassword": {
+		"/users/resetPassword": {
 			"post": {
 				"tags": ["Users"],
 				"summary": "Send reset password link to email",
-				"operationId": "sendForgotPasswordEmail",
+				"operationId": "SendForgotPasswordEmail",
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -654,21 +546,15 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					}
-				}
+				},
+				"parameters": []
 			},
 			"put": {
 				"tags": ["Users"],
 				"summary": "Change user password using the token from the email",
-				"operationId": "resetPasswordWithToken",
+				"operationId": "ResetPasswordWithToken",
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -676,7 +562,8 @@
 								"type": "object",
 								"properties": {
 									"token": {
-										"type": "string"
+										"type": "string",
+										"format": "uuid"
 									},
 									"password": {
 										"type": "string"
@@ -704,23 +591,17 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/FieldValidationError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					}
-				}
+				},
+				"parameters": []
 			}
 		},
-		"/api/users/{id}": {
+		"/users/{id}": {
 			"get": {
 				"tags": ["Users", "Admin"],
 				"summary": "Admin Get user by ID",
-				"operationId": "getUserById",
+				"operationId": "AdminGetUserById",
 				"security": [
 					{
 						"bearerAuth": []
@@ -749,14 +630,7 @@
 						}
 					},
 					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/NotFound"
 					}
 				}
 			},
@@ -764,7 +638,7 @@
 				"tags": ["Users", "Admin"],
 				"summary": "Admin Update user by Id",
 				"description": "This can only be done by the logged in user.",
-				"operationId": "updateUserById",
+				"operationId": "AdminUpdateUserById",
 				"security": [
 					{
 						"bearerAuth": []
@@ -826,24 +700,10 @@
 						}
 					},
 					"400": {
-						"description": "Field error in body",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/BadRequest"
 					},
 					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/NotFound"
 					}
 				},
 				"x-codegen-request-body-name": "body"
@@ -851,7 +711,7 @@
 			"delete": {
 				"tags": ["Users", "Admin"],
 				"summary": "Admin deactivate user by Id",
-				"operationId": "deleteUserById",
+				"operationId": "AdminDeleteUserById",
 				"security": [
 					{
 						"bearerAuth": []
@@ -885,20 +745,45 @@
 						}
 					},
 					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/StandardError"
-								}
-							}
-						}
+						"$ref": "#/components/responses/NotFound"
 					}
 				}
 			}
 		}
 	},
 	"components": {
+		"responses": {
+			"NotFound": {
+				"description": "Not found",
+				"content": {
+					"application/json": {
+						"schema": {
+							"$ref": "#/components/schemas/StandardError"
+						}
+					}
+				}
+			},
+			"UnauthorizedError": {
+				"description": "Access token is missing or invalid",
+				"content": {
+					"application/json": {
+						"schema": {
+							"$ref": "#/components/schemas/StandardError"
+						}
+					}
+				}
+			},
+			"BadRequest": {
+				"description": "The method call failed the server-side validation",
+				"content": {
+					"application/json": {
+						"schema": {
+							"$ref": "#/components/schemas/FieldValidationError"
+						}
+					}
+				}
+			}
+		},
 		"schemas": {
 			"FieldValidationError": {
 				"type": "object",
@@ -909,7 +794,6 @@
 							"body": {
 								"type": "array",
 								"nullable": true,
-								"format": "possibleVoid",
 								"items": {
 									"type": "object",
 									"properties": {
@@ -925,7 +809,6 @@
 							"query": {
 								"type": "array",
 								"nullable": true,
-								"format": "possibleVoid",
 								"items": {
 									"type": "object",
 									"properties": {
@@ -1071,6 +954,9 @@
 				"scheme": "bearer",
 				"bearerFormat": "JWT"
 			}
-		}
-	}
+		},
+		"links": {},
+		"callbacks": {}
+	},
+	"security": []
 }
