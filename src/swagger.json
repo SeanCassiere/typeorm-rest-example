@@ -81,7 +81,11 @@
 						}
 					}
 				],
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"responses": {
 					"200": {
 						"description": "All users in the system",
@@ -97,6 +101,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -119,7 +124,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"firstName": {
 										"type": "string"
@@ -146,37 +150,13 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
-									"properties": {
-										"id": {
-											"type": "integer"
-										},
-										"firstName": {
-											"type": "string",
-											"format": "string"
-										},
-										"lastName": {
-											"type": "string",
-											"format": "string"
-										},
-										"email": {
-											"type": "string",
-											"format": "email"
-										},
-										"isAdmin": {
-											"type": "boolean",
-											"default": false
-										},
-										"isEmailConfirmed": {
-											"type": "boolean",
-											"default": false
-										}
-									}
+									"$ref": "#/components/schemas/UserForApplication"
 								}
 							}
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -200,7 +180,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"email": {
 										"type": "string",
@@ -217,7 +196,7 @@
 				},
 				"responses": {
 					"200": {
-						"description": "successful operation",
+						"description": "Successfully logged in as a user",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -227,6 +206,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -236,6 +216,7 @@
 						}
 					},
 					"401": {
+						"description": "Login error",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -294,6 +275,7 @@
 						}
 					},
 					"401": {
+						"description": "Refresh token validation failed, must login again",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -310,23 +292,27 @@
 				"tags": ["Users"],
 				"summary": "Fetch the profile of the currently logged-in user",
 				"operationId": "fetchCurrentUserProfile",
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"responses": {
 					"200": {
+						"description": "Successfully fetch current logged in user's profile",
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
 									"$ref": "#/components/schemas/UserForApplication"
 								}
 							}
 						}
 					},
 					"404": {
+						"description": "Cannot find the user",
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
 									"$ref": "#/components/schemas/StandardError"
 								}
 							}
@@ -339,25 +325,17 @@
 				"tags": ["Users"],
 				"summary": "Update the profile of the currently logged-in user",
 				"operationId": "updateCurrentUserProfile",
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"requestBody": {
 					"description": "User profile data to be updated",
 					"content": {
 						"application/json": {
 							"schema": {
-								"type": "object",
-								"required": true,
-								"properties": {
-									"firstName": {
-										"type": "string"
-									},
-									"lastName": {
-										"type": "string"
-									},
-									"password": {
-										"type": "string"
-									}
-								}
+								"$ref": "#/components/schemas/UserForApplication"
 							}
 						}
 					},
@@ -365,6 +343,7 @@
 				},
 				"responses": {
 					"200": {
+						"description": "Successfully updated the currently logged user profile",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -374,6 +353,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -382,21 +362,31 @@
 							}
 						}
 					},
-					"404": {
+					"401": {
+						"description": "User is not logged in",
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
+									"$ref": "#/components/schemas/StandardError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
 									"$ref": "#/components/schemas/StandardError"
 								}
 							}
 						}
 					},
 					"500": {
+						"description": "Internal server error",
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
 									"$ref": "#/components/schemas/StandardError"
 								}
 							}
@@ -417,7 +407,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"email": {
 										"type": "string",
@@ -446,6 +435,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -466,7 +456,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"token": {
 										"type": "string"
@@ -489,6 +478,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -515,14 +505,17 @@
 				"tags": ["Users"],
 				"summary": "Request confirmation email be sent to verify new email",
 				"operationId": "sendChangeEmailConfirmation",
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"requestBody": {
 					"description": "Send the email address to replace the existing one so a confirmation can be sent.",
 					"content": {
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"email": {
 										"type": "string",
@@ -551,6 +544,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -581,7 +575,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"token": {
 										"type": "string"
@@ -604,6 +597,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -625,7 +619,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"email": {
 										"type": "string",
@@ -634,10 +627,12 @@
 								}
 							}
 						}
-					}
+					},
+					"required": true
 				},
 				"responses": {
 					"200": {
+						"description": "Successfully send email to user with reset password link",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -652,6 +647,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -671,7 +667,6 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"required": true,
 								"properties": {
 									"token": {
 										"type": "string"
@@ -682,10 +677,12 @@
 								}
 							}
 						}
-					}
+					},
+					"required": true
 				},
 				"responses": {
 					"200": {
+						"description": "Successfully reset/changed user password using reset-password token",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -700,6 +697,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -716,7 +714,11 @@
 				"tags": ["Users", "Admin"],
 				"summary": "Admin Get user by ID",
 				"operationId": "getUserById",
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"parameters": [
 					{
 						"name": "id",
@@ -756,7 +758,11 @@
 				"summary": "Admin Update user by Id",
 				"description": "This can only be done by the logged in user.",
 				"operationId": "updateUserById",
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"parameters": [
 					{
 						"name": "id",
@@ -803,6 +809,7 @@
 				},
 				"responses": {
 					"200": {
+						"description": "Admin successfully updated user information",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -812,6 +819,7 @@
 						}
 					},
 					"400": {
+						"description": "Field error in body",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -821,6 +829,7 @@
 						}
 					},
 					"404": {
+						"description": "User not found",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -836,7 +845,11 @@
 				"tags": ["Users", "Admin"],
 				"summary": "Admin deactivate user by Id",
 				"operationId": "deleteUserById",
-				"security": [{ "bearerAuth": [] }],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"parameters": [
 					{
 						"name": "id",

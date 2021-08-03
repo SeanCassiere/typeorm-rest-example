@@ -30,12 +30,12 @@ export const adminGetAllUsers = asyncHandler(async (req, res, next) => {
 	}
 	// DB response size
 	if (req.query && req.query.limit) {
-		const limit = req.query.limit as any;
+		const limit = parseInt(req.query.limit as string);
 		query.take(limit);
 	}
 	// DB response item offset
-	if (req.query && req.query.limit) {
-		const skip = req.query.offset as any;
+	if (req.query && req.query.offset) {
+		const skip = parseInt(req.query.offset as string);
 		query.skip(skip);
 	}
 	// DB name search from firstName, lastName or email
@@ -45,6 +45,7 @@ export const adminGetAllUsers = asyncHandler(async (req, res, next) => {
 		query.orWhere("last_name ILIKE :last", { last: `%${search.toLowerCase()}%` });
 		query.orWhere("email ILIKE :emaila", { emaila: `%${search.toLowerCase()}%` });
 	}
+
 	try {
 		const usersQuery = await query.getMany();
 		res.json(usersQuery);
@@ -360,7 +361,7 @@ export const resetPasswordWithToken = asyncHandler(
 export const sendChangeEmailConfirmation = asyncHandler(async (req: CustomRequest<{ email: string }>, res) => {
 	const user = req.user!;
 	const { email } = req.body;
-	await sendEmail(email, await createChangeEmailUrl({ id: `${user.id}`, email }));
+	await sendEmail(email, await createChangeEmailUrl({ id: `${user.id}`, email: email.toLowerCase() }));
 	res.status(200).json({ message: "Success" });
 });
 

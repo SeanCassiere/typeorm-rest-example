@@ -34,8 +34,13 @@ const main = async () => {
 		app.get("/", (_, res) => {
 			res.send("hello world");
 		});
+
 		app.use("/docs", swaggerUI.serve);
 		app.get("/docs", swaggerUI.setup(swaggerDocument));
+
+		app.get("/docs/swagger.json", (_, res) => {
+			res.status(200).send(swaggerDocument);
+		});
 
 		app.use("/api", blanketApiRateLimiter);
 		//** Implement API Routes*/
