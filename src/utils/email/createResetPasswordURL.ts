@@ -1,8 +1,8 @@
-import { redis } from "../../redis";
 import { v4 } from "uuid";
 
-import { forgotPasswordPrefix } from "../constants/redisPrefixes";
-import { environmentVariables } from "../env";
+import { redis } from "#root/redis";
+import { forgotPasswordPrefix } from "#root/utils/constants/redisPrefixes";
+import { environmentVariables } from "#root/utils/env";
 
 export const createResetPasswordURL = async (userId: number) => {
 	const token = v4();

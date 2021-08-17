@@ -1,6 +1,6 @@
 import jwt, { Secret } from "jsonwebtoken";
 
-import { GeneratedTokenInterface } from "../interfaces/generatedToken";
+import { GeneratedTokenInterface } from "#root/interfaces/generatedToken";
 import { environmentVariables } from "./env";
 
 const JWT_SECRET: Secret = environmentVariables.JWT_SECRET || "dev_jwt_secret";

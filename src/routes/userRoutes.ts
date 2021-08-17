@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { expressYupMiddleware } from "express-yup-middleware";
 
-import { isAdmin, protect, isRefreshCookieValid } from "../middleware/authMiddleware";
-import { registerRouteRateLimiter } from "../middleware/rateLimitMiddleware";
+import { isAdmin, protect, isRefreshCookieValid } from "#root/middleware/authMiddleware";
+import { registerRouteRateLimiter } from "#root/middleware/rateLimitMiddleware";
 import {
 	confirmUserValidator,
 	registerUserValidator,
@@ -12,7 +12,7 @@ import {
 	bodyTokenOnlyValidatory,
 	adminUpdateUserValidator,
 	adminGetAllUsersValidator,
-} from "../validators/userRouteValidators";
+} from "#root/validators/userRouteValidators";
 import {
 	adminDeleteUserById,
 	adminGetAllUsers,
@@ -30,7 +30,7 @@ import {
 	logoutUser,
 	sendChangeEmailConfirmation,
 	confirmChangeEmail,
-} from "../controllers/userControllers";
+} from "#root/controllers/userControllers";
 
 const userRouter = Router();
 

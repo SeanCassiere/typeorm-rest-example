@@ -1,9 +1,9 @@
-import { redis } from "../../redis";
 import { v4 } from "uuid";
 
-import { changeEmailPrefix } from "../constants/redisPrefixes";
-import { generateToken } from "../generateToken";
-import { environmentVariables } from "../env";
+import { redis } from "#root/redis";
+import { changeEmailPrefix } from "#root/utils/constants/redisPrefixes";
+import { generateToken } from "#root/utils/generateToken";
+import { environmentVariables } from "#root/utils/env";
 
 export const createChangeEmailUrl = async ({ id, email }: { id: string; email: string }) => {
 	const token = v4();

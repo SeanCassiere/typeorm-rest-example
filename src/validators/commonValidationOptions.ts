@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+
 export const commonValidationOptions = {
 	validateOptions: { abortEarly: false },
 };

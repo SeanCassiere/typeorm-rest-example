@@ -10,9 +10,9 @@ import { errorHandler, notFound } from "./middleware/errorMiddleware";
 import { blanketApiRateLimiter } from "./middleware/rateLimitMiddleware";
 import swaggerDocument from "./swagger.json";
 import { createTypeormConn } from "./utils/createTypeOrmConn";
+import { environmentVariables } from "./utils/env";
 
 import { userRouter } from "./routes/userRoutes";
-import { environmentVariables } from "./utils/env";
 
 const PORT = environmentVariables.PORT ? environmentVariables.PORT : 4000;
 const COOKIE_SECRET = environmentVariables.COOKIE_SECRET ? environmentVariables.COOKIE_SECRET : "cookie_secret";

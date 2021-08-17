@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 
-import { environmentVariables } from "../utils/env";
+import { environmentVariables } from "#root/utils/env";
 
 export const blanketApiRateLimiter = rateLimit({
 	windowMs: environmentVariables.NODE_ENV === "production" ? 10 * 60 * 1000 : 1 * 60 * 1000, // 10 minutes

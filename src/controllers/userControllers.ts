@@ -2,22 +2,22 @@ import asyncHandler from "express-async-handler";
 import bcryptjs from "bcryptjs";
 import { decode } from "jsonwebtoken";
 
-import { generateToken } from "../utils/generateToken";
-import { GeneratedTokenInterface } from "../interfaces/generatedToken";
-import { CustomRequest } from "../interfaces/expressInterfaces";
-import { redis } from "../redis";
-import { createConfirmationUrl } from "../utils/email/createConfirmationURL";
-import { createResetPasswordURL } from "../utils/email/createResetPasswordURL";
-import { createChangeEmailUrl } from "../utils/email/createChangeEmailURL";
-import { sendEmail } from "../utils/email/sendEmail";
-import { changeEmailPrefix, confirmationEmailPrefix, forgotPasswordPrefix } from "../utils/constants/redisPrefixes";
-import { hashPasswordForUser } from "../utils/hashPasswordForUser";
-import { addMinsToCurrentDate } from "../utils/addMinsToCurrentDate";
-import { isNextPageAvailable, isPrevPageAvailable } from "../utils/routeHelpers";
-import { refreshTokenCookieConst } from "../utils/constants/cookieConstants";
-import { environmentVariables } from "../utils/env";
+import { generateToken } from "#root/utils/generateToken";
+import { GeneratedTokenInterface } from "#root/interfaces/generatedToken";
+import { CustomRequest } from "#root/interfaces/expressInterfaces";
+import { redis } from "#root/redis";
+import { createConfirmationUrl } from "#root/utils/email/createConfirmationURL";
+import { createResetPasswordURL } from "#root/utils/email/createResetPasswordURL";
+import { createChangeEmailUrl } from "#root/utils/email/createChangeEmailURL";
+import { sendEmail } from "#root/utils/email/sendEmail";
+import { changeEmailPrefix, confirmationEmailPrefix, forgotPasswordPrefix } from "#root/utils/constants/redisPrefixes";
+import { hashPasswordForUser } from "#root/utils/hashPasswordForUser";
+import { addMinsToCurrentDate } from "#root/utils/addMinsToCurrentDate";
+import { isNextPageAvailable, isPrevPageAvailable } from "#root/utils/routeHelpers";
+import { refreshTokenCookieConst } from "#root/utils/constants/cookieConstants";
+import { environmentVariables } from "#root/utils/env";
 
-import { User } from "../entities/User";
+import { User } from "#root/entities/User";
 
 // @desc Get all users for Admin
 // @route GET /api/users
