@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import dotenv from "dotenv";
 import Express from "express";
 import cors from "cors";
 import swaggerUI from "swagger-ui-express";
@@ -13,11 +12,10 @@ import swaggerDocument from "./swagger.json";
 import { createTypeormConn } from "./utils/createTypeOrmConn";
 
 import { userRouter } from "./routes/userRoutes";
+import { environmentVariables } from "./utils/env";
 
-dotenv.config();
-
-const PORT = process.env.PORT ? process.env.PORT : 4000;
-const COOKIE_SECRET = process.env.COOKIE_SECRET ? process.env.COOKIE_SECRET : "cookie_secret";
+const PORT = environmentVariables.PORT ? environmentVariables.PORT : 4000;
+const COOKIE_SECRET = environmentVariables.COOKIE_SECRET ? environmentVariables.COOKIE_SECRET : "cookie_secret";
 
 const main = async () => {
 	try {
@@ -25,9 +23,9 @@ const main = async () => {
 
 		const app = Express();
 
-		app.use(cors());
+		app.use(cors({ origin: (_, cb) => cb(null, true), credentials: true }));
 		app.use(helmet());
-		app.use(morgan("dev"));
+		app.use(morgan(environmentVariables.NODE_ENV === "production" ? "tiny" : "dev"));
 		app.use(cookieParser(COOKIE_SECRET));
 		app.use(Express.json());
 
@@ -35,11 +33,11 @@ const main = async () => {
 			res.redirect("/docs");
 		});
 
-		app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-
 		app.get("/docs/swagger.json", (_, res) => {
 			res.status(200).send(swaggerDocument);
 		});
+
+		app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 		app.use("/api", blanketApiRateLimiter);
 		//** Implement API Routes*/

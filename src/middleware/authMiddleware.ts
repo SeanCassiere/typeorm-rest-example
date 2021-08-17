@@ -2,12 +2,13 @@ import { NextFunction, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Secret, verify } from "jsonwebtoken";
 
-import { User } from "../entities/User";
 import { GeneratedTokenInterface } from "../interfaces/generatedToken";
 import { CustomRequest } from "../interfaces/expressInterfaces";
+import { User } from "../entities/User";
+import { environmentVariables } from "../utils/env";
 
-const JWT_SECRET: Secret = process.env.JWT_SECRET || "dev_jwt_secret";
-const REFRESH_JWT_SECRET: Secret = process.env.REFRESH_JWT_SECRET || "dev_refresh_jwt_secret";
+const JWT_SECRET: Secret = environmentVariables.JWT_SECRET || "dev_jwt_secret";
+const REFRESH_JWT_SECRET: Secret = environmentVariables.REFRESH_JWT_SECRET || "dev_refresh_jwt_secret";
 
 export const protect = asyncHandler(async (req: CustomRequest<{}>, res, next: NextFunction) => {
 	let token: string = "";

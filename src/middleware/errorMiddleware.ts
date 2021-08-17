@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 
+import { environmentVariables } from "../utils/env";
+
 const notFound = (req: Request, res: Response, next: NextFunction) => {
 	const error = new Error(`Not Found - ${req.originalUrl}`);
 	res.status(404);
@@ -11,7 +13,7 @@ const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
 	res.status(statusCode);
 	res.json({
 		message: err.message,
-		stack: process.env.NODE_ENV === "production" ? null : err.stack,
+		stack: environmentVariables.NODE_ENV === "production" ? null : err.stack,
 	});
 };
 

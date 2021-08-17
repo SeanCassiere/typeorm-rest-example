@@ -1,9 +1,10 @@
 import jwt, { Secret } from "jsonwebtoken";
 
 import { GeneratedTokenInterface } from "../interfaces/generatedToken";
+import { environmentVariables } from "./env";
 
-const JWT_SECRET: Secret = process.env.JWT_SECRET || "dev_jwt_secret";
-const REFRESH_JWT_SECRET: Secret = process.env.REFRESH_JWT_SECRET || "dev_refresh_jwt_secret";
+const JWT_SECRET: Secret = environmentVariables.JWT_SECRET || "dev_jwt_secret";
+const REFRESH_JWT_SECRET: Secret = environmentVariables.REFRESH_JWT_SECRET || "dev_refresh_jwt_secret";
 
 type TokenTypes = "ACCESS_TOKEN" | "REFRESH_TOKEN";
 

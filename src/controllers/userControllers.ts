@@ -14,6 +14,8 @@ import { changeEmailPrefix, confirmationEmailPrefix, forgotPasswordPrefix } from
 import { hashPasswordForUser } from "../utils/hashPasswordForUser";
 import { addMinsToCurrentDate } from "../utils/addMinsToCurrentDate";
 import { isNextPageAvailable, isPrevPageAvailable } from "../utils/routeHelpers";
+import { refreshTokenCookieConst } from "../utils/constants/cookieConstants";
+import { environmentVariables } from "../utils/env";
 
 import { User } from "../entities/User";
 
@@ -136,8 +138,8 @@ export const authUser = asyncHandler(async (req: CustomRequest<{ email: string; 
 		const cookieExpirationDate = addMinsToCurrentDate(refreshTokenDuration);
 		const refreshToken = generateToken("REFRESH_TOKEN", { id: `${user.id}` }, refreshTokenDuration);
 		res
-			.cookie("refreshToken", refreshToken, {
-				secure: process.env.NODE_ENV === "production" ? true : false,
+			.cookie(refreshTokenCookieConst, refreshToken, {
+				secure: environmentVariables.NODE_ENV === "production" ? true : false,
 				httpOnly: true,
 				expires: cookieExpirationDate,
 				signed: true,
@@ -170,7 +172,7 @@ export const refreshUserAccessTokenFromCookie = asyncHandler(async (req: CustomR
 // @route GET /api/users/logout
 // @access Public
 export const logoutUser = asyncHandler(async (_, res) => {
-	res.cookie("refreshToken", "expiring now", { expires: new Date(Date.now()) }).json({ success: true });
+	res.cookie(refreshTokenCookieConst, "expiring now", { expires: new Date(Date.now()) }).json({ success: true });
 });
 
 // @desc Confirm user with token from email
